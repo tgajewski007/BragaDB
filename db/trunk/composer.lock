@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f641959d5d766c6942db797faf297ce1",
-    "content-hash": "5a06bbd1861642d4a2e337509ea35fb9",
+    "hash": "92fc1712a5b02f93a93c9c822423d482",
+    "content-hash": "e4a651a07d34565c108f047112ff5b55",
     "packages": [
         {
             "name": "braga/tools",

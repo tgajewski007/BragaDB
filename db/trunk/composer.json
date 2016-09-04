@@ -1,5 +1,5 @@
 {
-	"name" : "Braga/DB",
+	"name" : "braga/db",
 	"type" : "library",
 	"description" : "DB Wraper",
 	"keywords" : [

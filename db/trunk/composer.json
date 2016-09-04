@@ -1,0 +1,20 @@
+{
+	"name" : "Braga/DB",
+	"type" : "library",
+	"description" : "DB Wraper",
+	"keywords" : [
+		"DB",
+		"MySQL","Oracle","PDO"
+	],
+	"homepage" : "https://sourceforge.net/projects/braga/",
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "Tomasz Gajewski",
+			"email" : "tgajewski007@gmail.com",
+			"role" : "Developer"
+		}
+	],
+	"require" : {
+		"php" : ">=5.4.0"
+	}
+}

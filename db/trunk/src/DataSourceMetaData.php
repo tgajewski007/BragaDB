@@ -6,7 +6,7 @@
  * error prefix
  */
 namespace Braga\DB;
-interface DataSourceMetaData extends Iterator
+interface DataSourceMetaData extends \Iterator
 {
 	// -------------------------------------------------------------------------
 	/**

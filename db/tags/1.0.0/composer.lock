@@ -1,0 +1,49 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "92fc1712a5b02f93a93c9c822423d482",
+    "content-hash": "e4a651a07d34565c108f047112ff5b55",
+    "packages": [
+        {
+            "name": "braga/tools",
+            "version": "1.0.0",
+            "source": {
+                "type": "svn",
+                "url": "https://svn.code.sf.net/p/braga/code/tools",
+                "reference": "/tags/1.0.0/@26"
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "braga\\tools\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Many difrent tools lib",
+            "keywords": [
+                "libs",
+                "tools"
+            ],
+            "time": "2016-09-04 12:03:55"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=5.4.0"
+    },
+    "platform-dev": []
+}

@@ -4,13 +4,44 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4119dd5af066d60dd823a1f358fdb712",
-    "content-hash": "4d0707a22783ab1dbdc66fd7551a040b",
-    "packages": [],
+    "hash": "6bf128844aa29d839447d2858ef4a8c4",
+    "content-hash": "48b995c1af603470769861b2fa5e2087",
+    "packages": [
+        {
+            "name": "braga/tools",
+            "version": "dev-trunk",
+            "source": {
+                "type": "svn",
+                "url": "https://svn.code.sf.net/p/braga/code/tools",
+                "reference": "/trunk/@22"
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "braga\\tools\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Many difrent tools lib",
+            "keywords": [
+                "libs",
+                "tools"
+            ],
+            "time": "2016-09-04 11:48:59"
+        }
+    ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "braga/tools": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

@@ -10,7 +10,7 @@
 	],
 	"autoload" : {
 		"psr-4" : {
-			"braga\\db" : "src"
+			"braga\\db\\" : "src"
 		}
 	},
 	"homepage" : "https://sourceforge.net/projects/braga/",

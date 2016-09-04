@@ -5,9 +5,9 @@
  * @package frontoffice
  * error prefix
  */
-namespace Braga\DB\MySQL;
-use Braga\DB\DataSourceMetaData;
-use Braga\DB\DataSourceColumnMetaData;
+namespace braga\db\mysql;
+use braga\db\DataSourceMetaData;
+use braga\db\DataSourceColumnMetaData;
 class MySQLMetaData implements DataSourceMetaData
 {
 	// -------------------------------------------------------------------------

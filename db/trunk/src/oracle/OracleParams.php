@@ -6,7 +6,7 @@
  * @author Tomasz Gajewski
  * Created on 19-12-2010 21:34:46
  */
-namespace Braga;
+namespace braga\db\oracle;
 class OracleParams
 {
 	protected $listaParametrow = array();

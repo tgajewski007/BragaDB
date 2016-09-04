@@ -5,7 +5,7 @@
  * @package frontoffice
  * error prefix
  */
-namespace Braga\DB;
+namespace braga\db;
 interface DataSourceMetaData extends \Iterator
 {
 	// -------------------------------------------------------------------------

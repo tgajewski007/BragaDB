@@ -4,8 +4,8 @@
  * @author Tomasz Gajewski
  * @package common
  */
-namespace Braga\DB\MySQL;
-use Braga\DB\DataSource;
+namespace braga\db\mysql;
+use braga\db\DataSource;
 use braga\tools\html\BaseTags;
 class DB implements DataSource
 {

@@ -5,9 +5,9 @@
  * @package frontoffice
  * error prefix
  */
-namespace Braga;
-use Braga\DB\DataSourceMetaData;
-use Braga\DB\DataSourceColumnMetaData;
+namespace braga\db\oracle;
+use braga\db\DataSourceMetaData;
+use braga\db\DataSourceColumnMetaData;
 class OracleMetaData implements DataSourceMetaData
 {
 	// -------------------------------------------------------------------------

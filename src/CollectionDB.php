@@ -6,7 +6,7 @@
  * @package common
  * error prefix
  */
-namespace Braga\DB;
+namespace braga\db;
 class CollectionDB implements DataSource
 {
 	// -------------------------------------------------------------------------

@@ -4,8 +4,15 @@
 	"description" : "DB Wraper",
 	"keywords" : [
 		"DB",
-		"MySQL","Oracle","PDO"
+		"MySQL",
+		"Oracle",
+		"PDO"
 	],
+	"autoload" : {
+		"psr-4" : {
+			"braga\\db" : "src"
+		}
+	},
 	"homepage" : "https://sourceforge.net/projects/braga/",
 	"license" : "MIT",
 	"authors" : [{

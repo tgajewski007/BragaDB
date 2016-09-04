@@ -16,9 +16,9 @@ class DB implements DataSource
 	protected $serwer = ORA_SERVER;
 	protected $port = ORA_PORT;
 	protected $sid = ORA_SID;
-	protected $userName = ORA_USERNAME;
-	protected $password = ORA_PASSWORD;
-	protected $database = ORA_TNS_NAME;
+	protected $userName = DB_USER;
+	protected $password = DB_PASS;
+	protected $database = DB_CONNECTION_STRING;
 	// -------------------------------------------------------------------------
 	static $paramCount = 0;
 	// -------------------------------------------------------------------------

@@ -23,6 +23,6 @@
 	],
 	"require" : {
 		"php" : ">=5.4.0",
-		"braga/tools" : "dev-trunk"
+		"braga/tools" : "1.0.0"
 	}
 }

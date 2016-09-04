@@ -6,6 +6,7 @@
  */
 namespace Braga\DB\MySQL;
 use Braga\DB\DataSource;
+use braga\tools\html\BaseTags;
 class DB implements DataSource
 {
 	// -------------------------------------------------------------------------
@@ -89,7 +90,7 @@ class DB implements DataSource
 					else
 					{
 						$errors = $this->statement->errorInfo();
-						addSQLError($errors[2] . Tags::p($this->lastQuery));
+						addSQLError($errors[2] . BaseTags::p($this->lastQuery));
 						return false;
 					}
 				}
@@ -107,11 +108,11 @@ class DB implements DataSource
 		{
 			if(class_exists("Tags"))
 			{
-				$error = Tags::div($e->getMessage());
-				$error .= Tags::hr("class='ui-state-highlight'");
-				$error .= Tags::div($this->lastQuery);
-				$error .= Tags::hr("class='ui-state-highlight'");
-				$error .= Tags::div(str_replace("\n", Tags::br(), var_export($this->params, true)));
+				$error = BaseTags::div($e->getMessage());
+				$error .= BaseTags::hr("class='ui-state-highlight'");
+				$error .= BaseTags::div($this->lastQuery);
+				$error .= BaseTags::hr("class='ui-state-highlight'");
+				$error .= BaseTags::div(str_replace("\n", Tags::br(), var_export($this->params, true)));
 				addSQLError($error);
 			}
 			else
@@ -152,7 +153,7 @@ class DB implements DataSource
 				$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
 			}
 			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-					PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+					\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
 			if($this->statement instanceof PDOStatement)
 			{
 				return true;
@@ -181,7 +182,7 @@ class DB implements DataSource
 	 */
 	public function nextRecord()
 	{
-		$this->row = $this->statement->fetch(PDO::FETCH_BOTH);
+		$this->row = $this->statement->fetch(\PDO::FETCH_BOTH);
 		if($this->row !== false)
 		{
 			return true;
@@ -275,10 +276,10 @@ class DB implements DataSource
 	{
 		if(empty(self::$connectionObject))
 		{
-			self::$connectionObject = new PDO(DB_CONNECTION_STRING, DB_USER, DB_PASS);
-			self::$connectionObject->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			// self::$connectionObject->setAttribute(PDO::MYSQL_ATTR_FOUND_ROWS, true);
-			self::$connectionObject->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+			self::$connectionObject = new \PDO(DB_CONNECTION_STRING, DB_USER, DB_PASS);
+			self::$connectionObject->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+			// self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_FOUND_ROWS, true);
+			self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 			self::$connectionObject->query("SET NAMES utf8 COLLATE 'utf8_polish_ci'");
 		}
 		if($this->transaction)

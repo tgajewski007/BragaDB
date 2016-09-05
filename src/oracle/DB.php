@@ -168,7 +168,7 @@ class DB implements DataSource
 				return true;
 			}
 		}
-		catch(Exception $e)
+		catch(\Exception $e)
 		{
 			$this->saveErrors($e->getMessage());
 			return false;

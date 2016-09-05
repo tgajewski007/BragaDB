@@ -105,7 +105,7 @@ class DB implements DataSource
 				return false;
 			}
 		}
-		catch(Exception $e)
+		catch(\Exception $e)
 		{
 			echo $e->getMessage() . "\n";
 			echo $this->lastQuery . "\n";
@@ -140,16 +140,16 @@ class DB implements DataSource
 			}
 			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
 					\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-			if($this->statement instanceof PDOStatement)
+			if($this->statement instanceof \PDOStatement)
 			{
 				return true;
 			}
 			else
 			{
-				return true;
+				return false;
 			}
 		}
-		catch(Exception $e)
+		catch(\Exception $e)
 		{
 			echo $e->getMessage() . "\n";
 			echo $this->lastQuery . "\n";

@@ -104,7 +104,7 @@ class DB implements DataSource
 				return false;
 			}
 		}
-		catch(Exception $e)
+		catch(\Exception $e)
 		{
 			if(class_exists("Tags"))
 			{
@@ -163,7 +163,7 @@ class DB implements DataSource
 				return true;
 			}
 		}
-		catch(Exception $e)
+		catch(\Exception $e)
 		{
 			addMsg($e->getMessage());
 			return false;

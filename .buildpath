@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <buildpath>
+	<buildpathentry kind="src" path="vendor/braga/tools/src/tools"/>
 	<buildpathentry kind="src" path="src"/>
 	<buildpathentry kind="src" path="vendor/composer"/>
 	<buildpathentry kind="con" path="org.eclipse.php.core.LANGUAGE"/>
-	<buildpathentry kind="src" path="vendor/braga/tools/src"/>
+	<buildpathentry excluding="tools/" kind="src" path="vendor/braga/tools/src"/>
 </buildpath>

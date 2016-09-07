@@ -110,12 +110,12 @@ class CollectionDB implements DataSource
 		return 0;
 	}
 	// -------------------------------------------------------------------------
-	public function commit()
+	public static function commit()
 	{
 		return false;
 	}
 	// -------------------------------------------------------------------------
-	public function rollback()
+	public static function rollback()
 	{
 		return false;
 	}
@@ -123,6 +123,17 @@ class CollectionDB implements DataSource
 	public function count()
 	{
 		return $this->arrayOfObjects->count();
+	}
+	// -------------------------------------------------------------------------
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see \braga\db\DataSource::startTransaction()
+	 */
+	public function startTransaction()
+	{
+		return false;
 	}
 	// -------------------------------------------------------------------------
 }

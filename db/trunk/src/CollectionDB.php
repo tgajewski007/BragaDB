@@ -131,7 +131,7 @@ class CollectionDB implements DataSource
 	 *
 	 * @see \braga\db\DataSource::startTransaction()
 	 */
-	public function startTransaction()
+	public static function startTransaction()
 	{
 		return false;
 	}

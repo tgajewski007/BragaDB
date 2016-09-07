@@ -128,12 +128,12 @@ class ArrayToDBBridge implements DataSource
 		return 0;
 	}
 	// -------------------------------------------------------------------------
-	public function commit()
+	public static function commit()
 	{
 		return false;
 	}
 	// -------------------------------------------------------------------------
-	public function rollback()
+	public static function rollback()
 	{
 		return false;
 	}
@@ -141,6 +141,17 @@ class ArrayToDBBridge implements DataSource
 	public function count()
 	{
 		return count($this->arrayOfObjects);
+	}
+	// -------------------------------------------------------------------------
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see \braga\db\DataSource::startTransaction()
+	 */
+	public static function startTransaction()
+	{
+		return false;
 	}
 	// -------------------------------------------------------------------------
 }

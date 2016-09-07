@@ -18,11 +18,6 @@ class DB implements DataSource
 	protected static $connectionObject = null;
 	/**
 	 *
-	 * @var boolean
-	 */
-	protected $transaction = true;
-	/**
-	 *
 	 * @var PDOStatement
 	 */
 	protected $statement = null;
@@ -203,7 +198,7 @@ class DB implements DataSource
 		$this->params[":" . $name] = $value;
 	}
 	// -------------------------------------------------------------------------
-	public function commit()
+	public static function commit()
 	{
 		if(self::$inTransaction)
 		{
@@ -216,7 +211,7 @@ class DB implements DataSource
 		}
 	}
 	// -------------------------------------------------------------------------
-	public function rollback()
+	public static function rollback()
 	{
 		if(self::$inTransaction)
 		{
@@ -226,6 +221,15 @@ class DB implements DataSource
 		else
 		{
 			return true;
+		}
+	}
+	// -------------------------------------------------------------------------
+	public static function startTransaction()
+	{
+		if(!self::$inTransaction)
+		{
+			self::$connectionObject->beginTransaction();
+			self::$inTransaction = true;
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -269,23 +273,6 @@ class DB implements DataSource
 			self::$connectionObject->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 			self::$connectionObject->query("SET NAMES 'UTF8'");
 		}
-		if($this->transaction)
-		{
-			if(!self::$inTransaction)
-			{
-				self::$connectionObject->beginTransaction();
-				self::$inTransaction = true;
-			}
-		}
-		else
-		{
-			if(self::$inTransaction)
-			{
-				$this->commit();
-				self::$inTransaction = false;
-			}
-		}
-
 		return true;
 	}
 	// ------------------------------------------------------------------------

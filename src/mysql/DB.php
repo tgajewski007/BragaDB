@@ -17,11 +17,6 @@ class DB implements DataSource
 	protected static $connectionObject = null;
 	/**
 	 *
-	 * @var boolean
-	 */
-	protected $transaction = true;
-	/**
-	 *
 	 * @var PDOStatement
 	 */
 	protected $statement = null;
@@ -43,9 +38,8 @@ class DB implements DataSource
 	 */
 	protected static $inTransaction = false;
 	// -------------------------------------------------------------------------
-	function __construct($transaction = true)
+	function __construct()
 	{
-		$this->transaction = $transaction;
 		$this->params = array();
 	}
 	// -------------------------------------------------------------------------
@@ -214,7 +208,7 @@ class DB implements DataSource
 		$this->params[":" . $name] = $value;
 	}
 	// -------------------------------------------------------------------------
-	public function commit()
+	public static function commit()
 	{
 		if(self::$inTransaction)
 		{
@@ -227,7 +221,7 @@ class DB implements DataSource
 		}
 	}
 	// -------------------------------------------------------------------------
-	public function rollback()
+	public static function rollback()
 	{
 		if(self::$inTransaction)
 		{
@@ -237,6 +231,15 @@ class DB implements DataSource
 		else
 		{
 			return true;
+		}
+	}
+	// -------------------------------------------------------------------------
+	public static function startTransaction()
+	{
+		if(!self::$inTransaction)
+		{
+			self::$connectionObject->beginTransaction();
+			self::$inTransaction = true;
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -281,22 +284,6 @@ class DB implements DataSource
 			// self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_FOUND_ROWS, true);
 			self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 			self::$connectionObject->query("SET NAMES utf8 COLLATE 'utf8_polish_ci'");
-		}
-		if($this->transaction)
-		{
-			if(!self::$inTransaction)
-			{
-				self::$connectionObject->beginTransaction();
-				self::$inTransaction = true;
-			}
-		}
-		else
-		{
-			if(self::$inTransaction)
-			{
-				$this->commit();
-				self::$inTransaction = false;
-			}
 		}
 
 		return true;

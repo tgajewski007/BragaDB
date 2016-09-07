@@ -31,9 +31,11 @@ interface DataSource extends \Countable
 	// -------------------------------------------------------------------------
 	public function getRowAffected();
 	// -------------------------------------------------------------------------
-	public function commit();
+	public static function commit();
 	// -------------------------------------------------------------------------
-	public function rollback();
+	public static function rollback();
+	// -------------------------------------------------------------------------
+	public static function startTransaction();
 	// -------------------------------------------------------------------------
 	/**
 	 *

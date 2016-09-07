@@ -49,14 +49,11 @@ class DB implements DataSource
 	 */
 	protected static $inTransaction = false;
 	// -------------------------------------------------------------------------
-	public function __construct($trasactionOn = true)
+	public function __construct()
 	{
 		$this->fetchMode = OCI_BOTH + OCI_RETURN_NULLS;
 		$this->params = new OracleParams();
-		if(!$trasactionOn)
-		{
-			$this->trasaction = OCI_COMMIT_ON_SUCCESS;
-		}
+		$this->trasaction = OCI_COMMIT_ON_SUCCESS;
 	}
 	// -------------------------------------------------------------------------
 	public function rewind()
@@ -103,6 +100,10 @@ class DB implements DataSource
 	public function query($sql)
 	{
 		$this->lastQuery = $sql;
+		if(self::$inTransaction)
+		{
+			$this->trasaction = OCI_DEFAULT;
+		}
 		if($this->connect())
 		{
 			if($this->prepare())
@@ -226,14 +227,19 @@ class DB implements DataSource
 		$this->params->add($name, new OracleParam($this->getConnectionObject(), $value, $length, $type));
 	}
 	// -------------------------------------------------------------------------
-	public function commit()
+	public static function commit()
 	{
-		oci_commit($this->getConnectionObject());
+		oci_commit(self::$connectionObiect);
 	}
 	// -------------------------------------------------------------------------
-	public function rollback()
+	public static function startTransaction()
 	{
-		oci_rollback($this->getConnectionObject());
+		self::$inTransaction = true;
+	}
+	// -------------------------------------------------------------------------
+	public static function rollback()
+	{
+		oci_rollback(self::$connectionObiect);
 	}
 	// -------------------------------------------------------------------------
 	public function getRowAffected()
@@ -266,19 +272,12 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	protected function getConnectionObject()
 	{
-		if(isset(self::$connectionObiect[$this->userName]))
-		{
-			return self::$connectionObiect[$this->userName];
-		}
-		else
-		{
-			return null;
-		}
+		return self::$connectionObiect;
 	}
 	// -------------------------------------------------------------------------
 	protected function setConnectionObject($connectionObject)
 	{
-		self::$connectionObiect[$this->userName] = $connectionObject;
+		self::$connectionObiect = $connectionObject;
 	}
 	// -------------------------------------------------------------------------
 	public function connect()

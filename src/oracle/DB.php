@@ -13,9 +13,9 @@ use braga\tools\html\BaseTags;
 class DB implements DataSource
 {
 	// -------------------------------------------------------------------------
-	protected $serwer = ORA_SERVER;
-	protected $port = ORA_PORT;
-	protected $sid = ORA_SID;
+	protected $serwer;
+	protected $port;
+	protected $sid;
 	protected $userName = DB_USER;
 	protected $password = DB_PASS;
 	protected $database = DB_CONNECTION_STRING;

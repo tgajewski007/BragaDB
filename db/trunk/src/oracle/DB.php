@@ -24,7 +24,7 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	protected static $connectionObiect;
 	protected $error = "";
-	protected $trasaction = OCI_DEFAULT;
+	protected $trasaction = OCI_COMMIT_ON_SUCCESS;
 	protected $statement = null;
 	/**
 	 *

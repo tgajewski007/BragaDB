@@ -106,7 +106,7 @@ class DB implements DataSource
 				$error .= BaseTags::hr("class='ui-state-highlight'");
 				$error .= BaseTags::div($this->lastQuery);
 				$error .= BaseTags::hr("class='ui-state-highlight'");
-				$error .= BaseTags::div(str_replace("\n", Tags::br(), var_export($this->params, true)));
+				$error .= BaseTags::div(str_replace("\n", BaseTags::br(), var_export($this->params, true)));
 				addSQLError($error);
 			}
 			else

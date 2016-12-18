@@ -1,5 +1,7 @@
 <?php
+
 namespace braga\db\pgsql;
+
 use braga\db\DataSource;
 use braga\tools\html\BaseTags;
 
@@ -131,10 +133,11 @@ class DB implements DataSource
 			$this->orginalQuery = $this->lastQuery;
 			if(!is_null($this->limit))
 			{
-				$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
+				$this->lastQuery .= " LIMIT " . $this->limit . " OFFSET " . $this->offset;
 			}
 			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-					\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+					\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY
+			));
 			if($this->statement instanceof \PDOStatement)
 			{
 				return true;

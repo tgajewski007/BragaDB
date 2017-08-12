@@ -23,10 +23,10 @@
 	],
 	"require" : {
 		"php" : ">=5.4.0",
-		"braga/tools" : "dev-trunk"
+		"braga/tools" : "~2"
 	},
-	"minimum-stability" : "dev",
-	"suggest": {
-        "braga/tools": "Generator for dao object"
-    }
+	"minimum-stability" : "stable",
+	"suggest" : {
+		"braga/tools" : "Generator for dao object"
+	}
 }

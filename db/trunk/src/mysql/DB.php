@@ -57,7 +57,7 @@ class DB implements DataSource
 		$this->lastQuery = $sql;
 		try
 		{
-			if($this->connect())
+			if(self::connect())
 			{
 				if($this->prepare())
 				{
@@ -210,36 +210,57 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	public static function commit()
 	{
-		if(self::$inTransaction)
+		if(self::connect())
 		{
-			self::$inTransaction = false;
-			return self::$connectionObject->commit();
+			if(self::$inTransaction)
+			{
+				self::$inTransaction = false;
+				return self::$connectionObject->commit();
+			}
+			else
+			{
+				return true;
+			}
 		}
 		else
 		{
-			return true;
+			throw new \Exception("Connecion error");
 		}
 	}
 	// -------------------------------------------------------------------------
 	public static function rollback()
 	{
-		if(self::$inTransaction)
+		if(self::connect())
 		{
-			self::$inTransaction = false;
-			return self::$connectionObject->rollback();
+			if(self::$inTransaction)
+			{
+				self::$inTransaction = false;
+				return self::$connectionObject->rollback();
+			}
+			else
+			{
+				return true;
+			}
 		}
 		else
 		{
-			return true;
+			throw new \Exception("Connecion error");
 		}
 	}
 	// -------------------------------------------------------------------------
 	public static function startTransaction()
 	{
-		if(!self::$inTransaction)
+		if(self::connect())
 		{
-			self::$connectionObject->beginTransaction();
-			self::$inTransaction = true;
+			if(!self::$inTransaction)
+			{
+				self::$connectionObject->beginTransaction();
+				self::$inTransaction = true;
+			}
+		}
+		else
+		{
+			throw new \Exception("Connecion error");
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -275,7 +296,7 @@ class DB implements DataSource
 	 *
 	 * @return boolean
 	 */
-	protected function connect()
+	protected static function connect()
 	{
 		if(empty(self::$connectionObject))
 		{

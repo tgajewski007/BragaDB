@@ -7,17 +7,18 @@
 namespace braga\db\mysql;
 use braga\db\DataSource;
 use braga\tools\html\BaseTags;
+use braga\db\DataSourceMetaData;
 class DB implements DataSource
 {
 	// -------------------------------------------------------------------------
 	/**
 	 *
-	 * @var PDO
+	 * @var \PDO
 	 */
 	protected static $connectionObject = null;
 	/**
 	 *
-	 * @var PDOStatement
+	 * @var \PDOStatement
 	 */
 	protected $statement = null;
 	protected $params = null;
@@ -45,7 +46,7 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	public function rewind()
 	{
-		return $this->statement->execute($this->params);
+		return $this->statement->execute();
 	}
 	// -------------------------------------------------------------------------
 	/**
@@ -147,9 +148,14 @@ class DB implements DataSource
 				$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
 			}
 			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-					\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-			if($this->statement instanceof PDOStatement)
+					\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY
+			));
+			if($this->statement instanceof \PDOStatement)
 			{
+				foreach($this->params as $key => $value)
+				{
+					$this->statement->bindParam($key, $value);
+				}
 				return true;
 			}
 			else

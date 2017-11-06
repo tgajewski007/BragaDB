@@ -46,7 +46,7 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	public function rewind()
 	{
-		return $this->statement->execute();
+		return $this->statement->execute($this->params);
 	}
 	// -------------------------------------------------------------------------
 	/**
@@ -152,10 +152,6 @@ class DB implements DataSource
 			));
 			if($this->statement instanceof \PDOStatement)
 			{
-				foreach($this->params as $key => $value)
-				{
-					$this->statement->bindValue($key, $value);
-				}
 				return true;
 			}
 			else

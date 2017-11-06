@@ -154,7 +154,7 @@ class DB implements DataSource
 			{
 				foreach($this->params as $key => $value)
 				{
-					$this->statement->bindParam($key, $value);
+					$this->statement->bindValue($key, $value);
 				}
 				return true;
 			}

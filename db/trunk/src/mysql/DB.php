@@ -99,6 +99,16 @@ class DB implements DataSource
 				return false;
 			}
 		}
+		catch(\PDOException $e)
+		{
+			if($e->getCode() != 'HY000' || !stristr($e->getMessage(), 'server has gone away'))
+			{
+				throw $e;
+			}
+			self::$connectionObject = null;
+			self::connect();
+			return $this->query($sql);
+		}
 		catch(\Exception $e)
 		{
 			if(class_exists("Tags"))

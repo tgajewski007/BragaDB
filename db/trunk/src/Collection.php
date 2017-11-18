@@ -82,5 +82,15 @@ class Collection implements \Iterator, \Countable
 		return $this->database->count();
 	}
 	// -------------------------------------------------------------------------
+	public function toArray()
+	{
+		$retval = array();
+		foreach($this as $obj)
+		{
+			$retval[$obj->getKey()] = $obj;
+		}
+		return $retval;
+	}
+	// -------------------------------------------------------------------------
 }
 ?>

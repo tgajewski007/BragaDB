@@ -312,11 +312,30 @@ class DB implements DataSource
 	{
 		if(empty(self::$connectionObject))
 		{
-			self::$connectionObject = new \PDO(DB_CONNECTION_STRING, DB_USER, DB_PASS);
-			self::$connectionObject->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-			// self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_FOUND_ROWS, true);
-			self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
-			self::$connectionObject->query("SET NAMES utf8 COLLATE 'utf8_polish_ci'");
+			$limit = 10;
+			$counter = 0;
+			while(true)
+			{
+				try
+				{
+					self::$connectionObject = new \PDO(DB_CONNECTION_STRING, DB_USER, DB_PASS);
+					self::$connectionObject->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+					// self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_FOUND_ROWS, true);
+					self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+					self::$connectionObject->query("SET NAMES utf8 COLLATE 'utf8_polish_ci'");
+
+				}
+				catch(\Exception $e)
+				{
+					self::$connectionObject = null;
+					sleep(1);
+					$counter++;
+					if($counter >= $limit)
+					{
+						throw $e;
+					}
+				}
+			}
 		}
 
 		return true;

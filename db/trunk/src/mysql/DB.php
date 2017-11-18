@@ -109,7 +109,7 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	protected function presentError(\Exception $e)
 	{
-		if(class_exists("Tags"))
+		if(class_exists("BaseTags"))
 		{
 			$error = BaseTags::div($e->getMessage());
 			$error .= BaseTags::hr("class='ui-state-highlight'");

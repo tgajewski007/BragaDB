@@ -14,7 +14,7 @@ interface DataSource extends \Countable
 	// -------------------------------------------------------------------------
 	/**
 	 *
-	 * @param sting $SQL
+	 * @param string $SQL
 	 * @return boolean
 	 */
 	public function query($sql);

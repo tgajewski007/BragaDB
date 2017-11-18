@@ -86,24 +86,15 @@ class DB implements DataSource
 					{
 						$errors = $this->statement->errorInfo();
 						addSQLError($errors[2] . BaseTags::p($this->lastQuery));
-						return false;
 					}
 				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return false;
 			}
 		}
 		catch(\PDOException $e)
 		{
 			if($e->getCode() != 'HY000' || !stristr($e->getMessage(), 'server has gone away'))
 			{
-				throw $e;
+				$this->presentError($e);
 			}
 			self::$connectionObject = null;
 			self::connect();
@@ -111,23 +102,28 @@ class DB implements DataSource
 		}
 		catch(\Exception $e)
 		{
-			if(class_exists("Tags"))
-			{
-				$error = BaseTags::div($e->getMessage());
-				$error .= BaseTags::hr("class='ui-state-highlight'");
-				$error .= BaseTags::div($this->lastQuery);
-				$error .= BaseTags::hr("class='ui-state-highlight'");
-				$error .= BaseTags::div(str_replace("\n", BaseTags::br(), var_export($this->params, true)));
-				addSQLError($error);
-			}
-			else
-			{
-				echo $e->getMessage() . "\n";
-				echo $this->lastQuery . "\n";
-				var_dump($this->params);
-				echo "\n=================================================================================\n";
-			}
-			return false;
+			$this->presentError($e);
+		}
+		return false;
+	}
+	// -------------------------------------------------------------------------
+	protected function presentError(\Exception $e)
+	{
+		if(class_exists("Tags"))
+		{
+			$error = BaseTags::div($e->getMessage());
+			$error .= BaseTags::hr("class='ui-state-highlight'");
+			$error .= BaseTags::div($this->lastQuery);
+			$error .= BaseTags::hr("class='ui-state-highlight'");
+			$error .= BaseTags::div(str_replace("\n", BaseTags::br(), var_export($this->params, true)));
+			addSQLError($error);
+		}
+		else
+		{
+			echo $e->getMessage() . "\n";
+			echo $this->lastQuery . "\n";
+			var_dump($this->params);
+			echo "\n=================================================================================\n";
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -157,9 +153,7 @@ class DB implements DataSource
 			{
 				$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
 			}
-			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-					\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY
-			));
+			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
 			if($this->statement instanceof \PDOStatement)
 			{
 				return true;

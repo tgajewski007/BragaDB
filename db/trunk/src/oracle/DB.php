@@ -10,6 +10,7 @@
 namespace braga\db\oracle;
 use braga\db\DataSource;
 use braga\tools\html\BaseTags;
+use braga\db\DataSourceMetaData;
 class DB implements DataSource
 {
 	// -------------------------------------------------------------------------

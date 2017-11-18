@@ -4,6 +4,7 @@ namespace braga\db\pgsql;
 
 use braga\db\DataSource;
 use braga\tools\html\BaseTags;
+use braga\db\DataSourceMetaData;
 
 /**
  * create 29-05-2012 07:48:24
@@ -15,12 +16,12 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	/**
 	 *
-	 * @var PDO
+	 * @var \PDO
 	 */
 	protected static $connectionObject = null;
 	/**
 	 *
-	 * @var PDOStatement
+	 * @var \PDOStatement
 	 */
 	protected $statement = null;
 	protected $params = null;

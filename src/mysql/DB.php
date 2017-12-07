@@ -109,7 +109,7 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	protected function presentError(\Exception $e)
 	{
-		if(class_exists("BaseTags"))
+		if(class_exists("\\braga\\tools\\html\\BaseTags"))
 		{
 			$error = BaseTags::div($e->getMessage());
 			$error .= BaseTags::hr("class='ui-state-highlight'");
@@ -153,7 +153,8 @@ class DB implements DataSource
 			{
 				$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
 			}
-			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
+			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
+							\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
 			if($this->statement instanceof \PDOStatement)
 			{
 				return true;

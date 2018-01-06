@@ -92,7 +92,7 @@ class DB implements DataSource
 		}
 		catch(\PDOException $e)
 		{
-			if($e->getCode() == 'HY000' || stristr($e->getMessage(), 'server has gone away'))
+			if($e->getCode() == 'HY000' && stristr($e->getMessage(), 'server has gone away'))
 			{
 				self::$connectionObject = null;
 				self::connect();

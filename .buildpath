@@ -6,6 +6,11 @@
 			<attribute name="composer" value="source"/>
 		</attributes>
 	</buildpathentry>
+	<buildpathentry kind="src" path="vendor/apache/log4php/src/main/php">
+		<attributes>
+			<attribute name="composer" value="vendor"/>
+		</attributes>
+	</buildpathentry>
 	<buildpathentry excluding="tools/" kind="src" path="vendor/braga/tools/src">
 		<attributes>
 			<attribute name="composer" value="vendor"/>

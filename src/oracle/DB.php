@@ -1,6 +1,6 @@
 <?php
+
 /**
- *
  * @package common
  * @author Tomasz.Gajewski
  * Created on 2006-03-27
@@ -8,9 +8,11 @@
  * error prefix EN:016
  */
 namespace braga\db\oracle;
+
 use braga\db\DataSource;
-use braga\tools\html\BaseTags;
 use braga\db\DataSourceMetaData;
+use braga\db\exception\GeneralSqlException;
+
 class DB implements DataSource
 {
 	// -------------------------------------------------------------------------
@@ -28,7 +30,6 @@ class DB implements DataSource
 	protected $trasaction = OCI_COMMIT_ON_SUCCESS;
 	protected $statement = null;
 	/**
-	 *
 	 * @var OracleParams
 	 */
 	protected $params = null;
@@ -40,12 +41,10 @@ class DB implements DataSource
 	protected $offset = null;
 	protected $fetchMode = null;
 	/**
-	 *
 	 * @var DataSourceMetaData
 	 */
 	protected $metaData = null;
 	/**
-	 *
 	 * @var boolean
 	 */
 	protected static $inTransaction = false;
@@ -145,7 +144,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return boolean
 	 */
 	protected function prepare()
@@ -249,7 +247,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return int
 	 */
 	public function getLastInsertID()
@@ -258,7 +255,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return DataSourceMetaData
 	 */
 	public function getMetaData()
@@ -394,16 +390,8 @@ class DB implements DataSource
 		}
 		$code = @$ociErrors["code"];
 		$message = @$ociErrors["message"];
-		// $offset = @$ociErrors["offset"];
-		// $sqltext = @$ociErrors["sqltext"];
 
-		$txt = $errorDesc;
-		$txt .= BaseTags::br();
-		$txt .= BaseTags::p($code . " " . $message);
-		$txt .= BaseTags::code($this->lastQuery);
-		$txt .= BaseTags::br();
-		$txt .= BaseTags::code(var_export($this->params, true));
-		addSQLError($txt);
+		throw new GeneralSqlException($this, $errorDesc . " " . $message, $code);
 	}
 	// -------------------------------------------------------------------------
 	public function __destruct()

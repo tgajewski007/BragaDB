@@ -1,23 +1,24 @@
 <?php
+
 /**
  * create 29-05-2012 07:48:24
  * @author Tomasz Gajewski
  * @package common
  */
 namespace braga\db\mysql;
+
 use braga\db\DataSource;
-use braga\tools\html\BaseTags;
 use braga\db\DataSourceMetaData;
+use braga\db\exception\GeneralSqlException;
+
 class DB implements DataSource
 {
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
-	 *
 	 * @var \PDO
 	 */
 	protected static $connectionObject = null;
 	/**
-	 *
 	 * @var \PDOStatement
 	 */
 	protected $statement = null;
@@ -29,30 +30,24 @@ class DB implements DataSource
 	protected $limit = null;
 	protected $offset = null;
 	/**
-	 *
 	 * @var DataSourceMetaData
 	 */
 	protected $metaData = null;
 	/**
-	 *
 	 * @var boolean
 	 */
 	protected static $inTransaction = false;
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	function __construct()
 	{
 		$this->params = array();
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public function rewind()
 	{
 		return $this->statement->execute($this->params);
 	}
-	// -------------------------------------------------------------------------
-	/**
-	 *
-	 * @return boolean
-	 */
+	// -----------------------------------------------------------------------------------------------------------------
 	public function query($sql)
 	{
 		$this->lastQuery = $sql;
@@ -80,50 +75,27 @@ class DB implements DataSource
 								$this->rowAffected = $this->statement->rowCount();
 							}
 						}
-						return true;
 					}
 					else
 					{
 						$errors = $this->statement->errorInfo();
-						addSQLError($errors[2] . BaseTags::p($this->lastQuery));
+						throw new GeneralSqlException($this, $errors, 100001);
 					}
 				}
 			}
 		}
 		catch(\PDOException $e)
 		{
-			if($e->getCode() == 'HY000' && stristr($e->getMessage(), 'server has gone away'))
+			if(!self::$inTransaction)
 			{
-				self::$connectionObject = null;
-				self::connect();
-				return $this->query($sql);
+				if($e->getCode() == 'HY000' && stristr($e->getMessage(), 'server has gone away'))
+				{
+					self::$connectionObject = null;
+					self::connect();
+					return $this->query($sql);
+				}
 			}
-			$this->presentError($e);
-		}
-		catch(\Exception $e)
-		{
-			$this->presentError($e);
-		}
-		return false;
-	}
-	// -------------------------------------------------------------------------
-	protected function presentError(\Exception $e)
-	{
-		if(class_exists("\\braga\\tools\\html\\BaseTags"))
-		{
-			$error = BaseTags::div($e->getMessage());
-			$error .= BaseTags::hr("class='ui-state-highlight'");
-			$error .= BaseTags::div($this->lastQuery);
-			$error .= BaseTags::hr("class='ui-state-highlight'");
-			$error .= BaseTags::div(str_replace("\n", BaseTags::br(), var_export($this->params, true)));
-			addSQLError($error);
-		}
-		else
-		{
-			echo $e->getMessage() . "\n";
-			echo $this->lastQuery . "\n";
-			var_dump($this->params);
-			echo "\n=================================================================================\n";
+			throw $e;
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -141,33 +113,24 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return boolean
 	 */
 	protected function prepare()
 	{
-		try
+		$this->orginalQuery = $this->lastQuery;
+		if(!is_null($this->limit))
 		{
-			$this->orginalQuery = $this->lastQuery;
-			if(!is_null($this->limit))
-			{
-				$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
-			}
-			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-							\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
-			if($this->statement instanceof \PDOStatement)
-			{
-				return true;
-			}
-			else
-			{
-				return true;
-			}
+			$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
 		}
-		catch(\Exception $e)
+		$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
+						\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
+		if($this->statement instanceof \PDOStatement)
 		{
-			addMsg($e->getMessage());
-			return false;
+			return true;
+		}
+		else
+		{
+			return true;
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -178,7 +141,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return boolean
 	 */
 	public function nextRecord()
@@ -231,7 +193,7 @@ class DB implements DataSource
 		}
 		else
 		{
-			throw new \Exception("Connecion error");
+			throw new \Exception("Connecion error", 100002);
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -251,7 +213,7 @@ class DB implements DataSource
 		}
 		else
 		{
-			throw new \Exception("Connecion error");
+			throw new \Exception("Connecion error", 100003);
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -267,7 +229,7 @@ class DB implements DataSource
 		}
 		else
 		{
-			throw new \Exception("Connecion error");
+			throw new \Exception("Connection error", 100004);
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -277,7 +239,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return DataSourceMetaData
 	 */
 	public function getMetaData()
@@ -286,7 +247,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return int
 	 */
 	public function getLastInsertID()
@@ -300,7 +260,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return boolean
 	 */
 	protected static function connect()

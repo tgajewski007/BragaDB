@@ -7,22 +7,20 @@
  * error prefix
  */
 namespace braga\db;
+
 interface DataSource extends \Countable
 {
 	// -------------------------------------------------------------------------
 	public function f($index);
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @param string $SQL
-	 * @return boolean
 	 */
 	public function query($sql);
 	// -------------------------------------------------------------------------
 	public function rewind();
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return boolean
 	 */
 	public function nextRecord();
@@ -38,7 +36,6 @@ interface DataSource extends \Countable
 	public static function startTransaction();
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return DataSourceMetaData
 	 */
 	public function getMetaData();

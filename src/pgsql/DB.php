@@ -1,8 +1,10 @@
 <?php
+
 namespace braga\db\pgsql;
+
 use braga\db\DataSource;
-use braga\tools\html\BaseTags;
 use braga\db\DataSourceMetaData;
+use braga\db\exception\GeneralSqlException;
 
 /**
  * create 29-05-2012 07:48:24
@@ -13,12 +15,10 @@ class DB implements DataSource
 {
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @var \PDO
 	 */
 	protected static $connectionObject = null;
 	/**
-	 *
 	 * @var \PDOStatement
 	 */
 	protected $statement = null;
@@ -30,12 +30,10 @@ class DB implements DataSource
 	protected $limit = null;
 	protected $offset = null;
 	/**
-	 *
 	 * @var DataSourceMetaData
 	 */
 	protected $metaData = null;
 	/**
-	 *
 	 * @var boolean
 	 */
 	protected static $inTransaction = false;
@@ -52,48 +50,40 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return boolean
 	 */
 	public function query($sql)
 	{
 		$this->lastQuery = $sql;
-		try
+
+		if($this->connect())
 		{
-			if($this->connect())
+			if($this->prepare())
 			{
-				if($this->prepare())
+				if($this->rewind())
 				{
-					if($this->rewind())
+					if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
 					{
-						if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
-						{
-							$this->setMetaData();
-							$this->rowAffected = $this->statement->rowCount();
-						}
-						else
-						{
-							if($this->statement->rowCount() == 0)
-							{
-								$this->rowAffected = 1;
-							}
-							else
-							{
-								$this->rowAffected = $this->statement->rowCount();
-							}
-						}
-						return true;
+						$this->setMetaData();
+						$this->rowAffected = $this->statement->rowCount();
 					}
 					else
 					{
-						$errors = $this->statement->errorInfo();
-						addSQLError($errors[2] . BaseTags::p($this->lastQuery));
-						return false;
+						if($this->statement->rowCount() == 0)
+						{
+							$this->rowAffected = 1;
+						}
+						else
+						{
+							$this->rowAffected = $this->statement->rowCount();
+						}
 					}
+					return true;
 				}
 				else
 				{
-					return false;
+					$errors = $this->statement->errorInfo();
+					throw new GeneralSqlException($this, $errors, 100002);
 				}
 			}
 			else
@@ -101,12 +91,8 @@ class DB implements DataSource
 				return false;
 			}
 		}
-		catch(\Exception $e)
+		else
 		{
-			echo $e->getMessage() . "\n";
-			echo $this->lastQuery . "\n";
-			var_dump($this->params);
-			echo "\n=================================================================================\n";
 			return false;
 		}
 	}
@@ -122,35 +108,23 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return boolean
 	 */
 	protected function prepare()
 	{
-		try
+		$this->orginalQuery = $this->lastQuery;
+		if(!is_null($this->limit))
 		{
-			$this->orginalQuery = $this->lastQuery;
-			if(!is_null($this->limit))
-			{
-				$this->lastQuery .= " LIMIT " . $this->limit . " OFFSET " . $this->offset;
-			}
-			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-							\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
-			if($this->statement instanceof \PDOStatement)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			$this->lastQuery .= " LIMIT " . $this->limit . " OFFSET " . $this->offset;
 		}
-		catch(\Exception $e)
+		$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
+						\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
+		if($this->statement instanceof \PDOStatement)
 		{
-			echo $e->getMessage() . "\n";
-			echo $this->lastQuery . "\n";
-			var_dump($this->params);
-			echo "\n=================================================================================\n";
+			return true;
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -162,7 +136,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return boolean
 	 */
 	public function nextRecord()
@@ -240,7 +213,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return DataSourceMetaData
 	 */
 	public function getMetaData()
@@ -249,7 +221,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return int
 	 */
 	public function getLastInsertID()
@@ -263,7 +234,6 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * @return boolean
 	 */
 	protected function connect()

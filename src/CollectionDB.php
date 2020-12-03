@@ -62,7 +62,8 @@ class CollectionDB implements DataSource
 		{
 			if(is_callable($this->translate[$index]))
 			{
-				return $this->translate[$index]();
+				$obj = $this->arrayOfObjects->current();
+				return $this->translate[$index]($obj);
 			}
 			else
 			{

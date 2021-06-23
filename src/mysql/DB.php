@@ -6,11 +6,9 @@
  * @package common
  */
 namespace braga\db\mysql;
-
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
-
 class DB implements DataSource
 {
 	// -----------------------------------------------------------------------------------------------------------------
@@ -38,9 +36,16 @@ class DB implements DataSource
 	 */
 	protected static $inTransaction = false;
 	// -----------------------------------------------------------------------------------------------------------------
+	protected $useBufferedQuery = false;
+	// ----------------------------------------------------------------------------------------------------------------
 	function __construct()
 	{
 		$this->params = array();
+	}
+	// ----------------------------------------------------------------------------------------------------------------
+	public function useBufferedQuery($param = true)
+	{
+		$this->useBufferedQuery = $param;
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	public function rewind()
@@ -122,8 +127,17 @@ class DB implements DataSource
 		{
 			$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
 		}
-		$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-						\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
+		if($this->useBufferedQuery)
+		{
+			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
+							\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY,
+							\PDO::ATTR_CURSOR => \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY ));
+		}
+		else
+		{
+			$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
+							\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
+		}
 		if($this->statement instanceof \PDOStatement)
 		{
 			return true;

@@ -6,11 +6,9 @@
  * @package common
  */
 namespace braga\db\mysql;
-
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
-
 class DB implements DataSource
 {
 	// -----------------------------------------------------------------------------------------------------------------
@@ -95,7 +93,23 @@ class DB implements DataSource
 					return $this->query($sql);
 				}
 			}
-			throw $e;
+			throw $this->translateException($e);
+		}
+	}
+	// -------------------------------------------------------------------------
+	protected function translateException(\Throwable $e)
+	{
+		switch($e->getMessage())
+		{
+			case "SQLSTATE[HY000]: General error: 1205 Lock wait timeout exceeded; try restarting transaction":
+				return new \RuntimeException("BR:91001 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 91001);
+				break;
+			case "SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction":
+				return new \RuntimeException("BR:91002 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 91002);
+				break;
+			default :
+				return $e;
+				break;
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -292,7 +306,7 @@ class DB implements DataSource
 				}
 			}
 		}
-		
+
 		return true;
 	}
 	// ------------------------------------------------------------------------

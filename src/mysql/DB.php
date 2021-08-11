@@ -102,10 +102,10 @@ class DB implements DataSource
 		switch($e->getMessage())
 		{
 			case "SQLSTATE[HY000]: General error: 1205 Lock wait timeout exceeded; try restarting transaction":
-				return new \RuntimeException("BR:91001 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 91001);
+				return new \RuntimeException("BR:1205 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 1205);
 				break;
 			case "SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction":
-				return new \RuntimeException("BR:91002 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 91002);
+				return new \RuntimeException("BR:1213 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 1213);
 				break;
 			default :
 				return $e;

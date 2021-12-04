@@ -14,7 +14,6 @@ class ArrayToDBBridge implements DataSource
 	protected $translate;
 	protected $firstNextRec = false;
 	/**
-	 *
 	 * @var ArrayDBMetaData
 	 */
 	protected $metaData;
@@ -53,24 +52,32 @@ class ArrayToDBBridge implements DataSource
 		$retval = null;
 		if(isset($this->translate[$index]))
 		{
-			if(is_array($this->translate[$index]))
+			if(is_callable($this->translate[$index]))
 			{
 				$obj = current($this->arrayOfObjects);
-				$retval = call_user_func_array(array(
-						$obj,
-						$this->translate[$index][0]), $this->translate[$index][1]);
+				return $this->translate[$index]($obj);
 			}
 			else
 			{
-				$obj = current($this->arrayOfObjects);
-				$executePath = explode(".", $this->translate[$index]);
-				foreach($executePath as $functionName)
+				if(is_array($this->translate[$index]))
 				{
-					$obj = call_user_func(array(
-							$obj,
-							$functionName));
+					$obj = current($this->arrayOfObjects);
+					$retval = call_user_func_array(array(
+									$obj,
+									$this->translate[$index][0] ), $this->translate[$index][1]);
 				}
-				$retval = $obj;
+				else
+				{
+					$obj = current($this->arrayOfObjects);
+					$executePath = explode(".", $this->translate[$index]);
+					foreach($executePath as $functionName)
+					{
+						$obj = call_user_func(array(
+										$obj,
+										$functionName ));
+					}
+					$retval = $obj;
+				}
 			}
 		}
 		return $retval;
@@ -144,7 +151,6 @@ class ArrayToDBBridge implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 *
 	 * {@inheritdoc}
 	 *
 	 * @see \braga\db\DataSource::startTransaction()

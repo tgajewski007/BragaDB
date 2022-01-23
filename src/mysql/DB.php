@@ -147,11 +147,11 @@ class DB implements DataSource
 			return true;
 		}
 	}
-	// -------------------------------------------------------------------------
-	public function setLimit($offset, $limit = PAGELIMIT)
+	// ------------------------------------------------------------------------
+	public function setLimit($offset, $limit = null)
 	{
 		$this->offset = intval($offset);
-		$this->limit = intval($limit);
+		$this->limit = is_null($limit) ? $limit : intval($limit);
 	}
 	// -------------------------------------------------------------------------
 	/**

@@ -8,11 +8,9 @@
  * error prefix EN:016
  */
 namespace braga\db\oracle;
-
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
-
 class DB implements DataSource
 {
 	// -------------------------------------------------------------------------

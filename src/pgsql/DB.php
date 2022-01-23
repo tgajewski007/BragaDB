@@ -1,7 +1,5 @@
 <?php
-
 namespace braga\db\pgsql;
-
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
@@ -129,10 +127,10 @@ class DB implements DataSource
 		}
 	}
 	// -------------------------------------------------------------------------
-	public function setLimit($offset, $limit = PAGELIMIT)
+	public function setLimit($offset, $limit = null)
 	{
 		$this->offset = intval($offset);
-		$this->limit = intval($limit);
+		$this->limit = is_null($limit) ? $limit : intval($limit);
 	}
 	// -------------------------------------------------------------------------
 	/**

@@ -291,7 +291,7 @@ class DB implements DataSource
 					// self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_FOUND_ROWS, true);
 					self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 					self::$connectionObject->setAttribute(\PDO::ATTR_PERSISTENT, true);
-					self::$connectionObject->query("SET NAMES utf8 COLLATE 'utf8_polish_ci'");
+					self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, "SET NAMES utf8 COLLATE 'utf8_polish_ci'");
 					break;
 				}
 				catch(\Exception $e)

@@ -90,7 +90,7 @@ class DB implements DataSource
 				{
 					self::$connectionObject = null;
 					self::connect();
-					return $this->query($sql);
+					$this->query($sql);
 				}
 			}
 			throw $this->translateException($e);
@@ -103,13 +103,10 @@ class DB implements DataSource
 		{
 			case "SQLSTATE[HY000]: General error: 1205 Lock wait timeout exceeded; try restarting transaction":
 				return new \RuntimeException("BR:1205 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 1205);
-				break;
 			case "SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction":
 				return new \RuntimeException("BR:1213 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 1213);
-				break;
 			default :
 				return $e;
-				break;
 		}
 	}
 	// -------------------------------------------------------------------------
@@ -310,7 +307,7 @@ class DB implements DataSource
 		return true;
 	}
 	// ------------------------------------------------------------------------
-	public function count()
+	public function count(): int
 	{
 		return $this->getRowAffected();
 	}

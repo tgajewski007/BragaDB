@@ -44,7 +44,7 @@ class ArrayDBMetaData implements DataSourceMetaData
 	// -------------------------------------------------------------------------
 	public function next(): void
 	{
-		$this->iteratorIndikator = next($this->columnNumIndexedInfo);
+		$this->iteratorIndikator = (next($this->columnNumIndexedInfo) !== false);
 	}
 	// -------------------------------------------------------------------------
 	public function key(): mixed

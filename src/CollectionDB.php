@@ -71,8 +71,8 @@ class CollectionDB implements DataSource
 				{
 					$obj = $this->arrayOfObjects->current();
 					$retval = call_user_func_array(array(
-									$obj,
-									$this->translate[$index][0] ), $this->translate[$index][1]);
+						$obj,
+						$this->translate[$index][0]), $this->translate[$index][1]);
 				}
 				else
 				{
@@ -81,8 +81,8 @@ class CollectionDB implements DataSource
 					foreach($executePath as $functionName)
 					{
 						$obj = call_user_func(array(
-										$obj,
-										$functionName ));
+							$obj,
+							$functionName));
 					}
 					$retval = $obj;
 				}
@@ -91,6 +91,10 @@ class CollectionDB implements DataSource
 		return $retval;
 	}
 	// -------------------------------------------------------------------------
+	/**
+	 * @return int
+	 * @deprecated
+	 */
 	public function getCount()
 	{
 		return $this->arrayOfObjects->count();
@@ -132,7 +136,7 @@ class CollectionDB implements DataSource
 		return false;
 	}
 	// -------------------------------------------------------------------------
-	public function count()
+	public function count(): int
 	{
 		return $this->arrayOfObjects->count();
 	}

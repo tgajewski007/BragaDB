@@ -38,7 +38,7 @@ class Collection implements \Iterator, \Countable
 		$this->currentObj = $this->prototype->getByDataSource($this->database);
 	}
 	// -------------------------------------------------------------------------
-	public function next()
+	public function next(): void
 	{
 		$this->inited = true;
 		if($this->database->nextRecord())
@@ -51,7 +51,7 @@ class Collection implements \Iterator, \Countable
 		}
 	}
 	// -------------------------------------------------------------------------
-	public function current()
+	public function current(): mixed
 	{
 		if(!$this->inited)
 		{
@@ -60,24 +60,24 @@ class Collection implements \Iterator, \Countable
 		return $this->currentObj;
 	}
 	// -------------------------------------------------------------------------
-	public function key()
+	public function key(): mixed
 	{
 		return $this->currentObj->getKey();
 	}
 	// -------------------------------------------------------------------------
-	public function valid()
+	public function valid(): bool
 	{
 		return !is_null($this->currentObj);
 	}
 	// -------------------------------------------------------------------------
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->inited = false;
 		$this->database->rewind();
 		$this->next();
 	}
 	// -------------------------------------------------------------------------
-	public function count()
+	public function count(): int
 	{
 		return $this->database->count();
 	}

@@ -37,30 +37,29 @@ class ArrayDBMetaData implements DataSourceMetaData
 		}
 	}
 	// -------------------------------------------------------------------------
-	public function current()
+	public function current(): mixed
 	{
 		return current($this->columnNumIndexedInfo);
 	}
 	// -------------------------------------------------------------------------
-	public function next()
+	public function next(): void
 	{
 		$this->iteratorIndikator = next($this->columnNumIndexedInfo);
-		return $this->iteratorIndikator;
 	}
 	// -------------------------------------------------------------------------
-	public function key()
+	public function key(): mixed
 	{
 		return key($this->columnNumIndexedInfo);
 	}
 	// -------------------------------------------------------------------------
-	public function valid()
+	public function valid(): bool
 	{
 		return $this->iteratorIndikator;
 	}
 	// -------------------------------------------------------------------------
-	public function rewind()
+	public function rewind(): void
 	{
-		return reset($this->columnNumIndexedInfo);
+		reset($this->columnNumIndexedInfo);
 	}
 	// -------------------------------------------------------------------------
 	public function getColumnCount()

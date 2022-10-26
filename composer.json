@@ -13,7 +13,6 @@
 			"braga\\db\\" : "src"
 		}
 	},
-	"homepage" : "https://sourceforge.net/projects/braga/",
 	"license" : "MIT",
 	"authors" : [{
 			"name" : "Tomasz Gajewski",
@@ -22,7 +21,8 @@
 		}
 	],
 	"require" : {
-		"php" : ">=7.2"
+		"php" : ">=7.4",
+		"": ""
 	},
 	"minimum-stability" : "stable",
 	"suggest" : {

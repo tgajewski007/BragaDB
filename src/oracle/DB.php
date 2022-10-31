@@ -8,18 +8,13 @@
  * error prefix EN:016
  */
 namespace braga\db\oracle;
+use braga\db\ConnectionConfigurationSetter;
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
 class DB implements DataSource
 {
-	// -------------------------------------------------------------------------
-	protected $serwer;
-	protected $port;
-	protected $sid;
-	protected $userName = DB_USER;
-	protected $password = DB_PASS;
-	protected $database = DB_CONNECTION_STRING;
+	use ConnectionConfigurationSetter;
 	// -------------------------------------------------------------------------
 	static $paramCount = 0;
 	// -------------------------------------------------------------------------
@@ -275,28 +270,27 @@ class DB implements DataSource
 		self::$connectionObiect = $connectionObject;
 	}
 	// -------------------------------------------------------------------------
+	/**
+	 * @return bool
+	 * @throws GeneralSqlException
+	 */
 	public function connect()
 	{
 		if(is_null($this->getConnectionObject()))
 		{
 			putenv("NLS_LANG=Polish_Poland.UTF8");
-			if(empty($this->database))
-			{
-				$this->database = "(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = " . $this->serwer . ")(PORT = " . $this->port . "))(CONNECT_DATA = (SID = " . $this->sid . ")))";
-			}
 
-			$this->setConnectionObject(oci_pconnect($this->userName, $this->password, $this->database, 'UTF8'));
+			$this->setConnectionObject(oci_pconnect(self::getConnectionConfigration()->getUserName(), self::getConnectionConfigration()->getPassword(), self::getConnectionConfigration()->getConnectionString(), 'UTF8'));
 			if(is_resource($this->getConnectionObject()))
 			{
-				$this->fastQuery("ALTER SESSION SET NLS_DATE_FORMAT = '" . ORACLE_DATE_FORMAT . "'");
-				$this->fastQuery("ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '" . ORACLE_DATETIME_FORMAT . "'");
+				$this->fastQuery("ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD'");
+				$this->fastQuery("ALTER SESSION SET NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS'");
 				$this->fastQuery("ALTER SESSION SET NLS_NUMERIC_CHARACTERS = '.`'");
 				return true;
 			}
 			else
 			{
 				$this->saveErrors("Błąd połączenia");
-				return false;
 			}
 		}
 		else

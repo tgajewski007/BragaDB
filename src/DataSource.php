@@ -40,5 +40,7 @@ interface DataSource extends \Countable
 	 */
 	public function getMetaData();
 	// -------------------------------------------------------------------------
+	public static function setConnectionConfigration(ConnectionConfiguration $configuration);
+	// -------------------------------------------------------------------------
 }
 ?>

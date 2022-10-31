@@ -1,5 +1,6 @@
 <?php
 namespace braga\db\pgsql;
+use braga\db\ConnectionConfigurationSetter;
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
@@ -11,6 +12,7 @@ use braga\db\exception\GeneralSqlException;
  */
 class DB implements DataSource
 {
+	use ConnectionConfigurationSetter;
 	// -------------------------------------------------------------------------
 	/**
 	 * @var \PDO
@@ -116,7 +118,7 @@ class DB implements DataSource
 			$this->lastQuery .= " LIMIT " . $this->limit . " OFFSET " . $this->offset;
 		}
 		$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-						\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
+			\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
 		if($this->statement instanceof \PDOStatement)
 		{
 			return true;
@@ -238,7 +240,7 @@ class DB implements DataSource
 	{
 		if(empty(self::$connectionObject))
 		{
-			self::$connectionObject = new \PDO(DB_CONNECTION_STRING, DB_USER, DB_PASS);
+			self::$connectionObject = new \PDO(self::getConnectionConfigration()->getConnectionString(), self::getConnectionConfigration()->getUserName(), self::getConnectionConfigration()->getPassword());
 			self::$connectionObject->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 			self::$connectionObject->query("SET NAMES 'UTF8'");
 		}

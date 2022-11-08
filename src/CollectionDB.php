@@ -7,6 +7,7 @@
  * error prefix
  */
 namespace braga\db;
+use braga\tools\exception\BragaException;
 class CollectionDB implements DataSource
 {
 	// -------------------------------------------------------------------------
@@ -151,5 +152,9 @@ class CollectionDB implements DataSource
 		return false;
 	}
 	// -------------------------------------------------------------------------
+	public static function setConnectionConfigration(ConnectionConfiguration $configuration)
+	{
+		throw new BragaException("BR:98102 Not implemented", 98102);
+	}
+	// -------------------------------------------------------------------------
 }
-?>

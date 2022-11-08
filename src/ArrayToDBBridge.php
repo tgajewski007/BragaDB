@@ -7,18 +7,19 @@
  * error prefix
  */
 namespace braga\db;
+use braga\tools\exception\BragaException;
 class ArrayToDBBridge implements DataSource
 {
 	// -------------------------------------------------------------------------
-	protected $arrayOfObjects;
-	protected $translate;
-	protected $firstNextRec = false;
+	protected array $arrayOfObjects;
+	protected array $translate = [];
+	protected bool $firstNextRec = false;
 	/**
 	 * @var ArrayDBMetaData
 	 */
-	protected $metaData;
+	protected ArrayDBMetaData $metaData;
 	// -------------------------------------------------------------------------
-	function __construct(Array $obj)
+	function __construct(array $obj)
 	{
 		$this->arrayOfObjects = $obj;
 		$this->metaData = new ArrayDBMetaData();
@@ -63,8 +64,8 @@ class ArrayToDBBridge implements DataSource
 				{
 					$obj = current($this->arrayOfObjects);
 					$retval = call_user_func_array(array(
-									$obj,
-									$this->translate[$index][0] ), $this->translate[$index][1]);
+						$obj,
+						$this->translate[$index][0]), $this->translate[$index][1]);
 				}
 				else
 				{
@@ -73,8 +74,8 @@ class ArrayToDBBridge implements DataSource
 					foreach($executePath as $functionName)
 					{
 						$obj = call_user_func(array(
-										$obj,
-										$functionName ));
+							$obj,
+							$functionName));
 					}
 					$retval = $obj;
 				}
@@ -83,7 +84,7 @@ class ArrayToDBBridge implements DataSource
 		return $retval;
 	}
 	// -------------------------------------------------------------------------
-	public function getCount()
+	public function getCount(): int
 	{
 		return count($this->arrayOfObjects);
 	}
@@ -145,7 +146,7 @@ class ArrayToDBBridge implements DataSource
 		return false;
 	}
 	// -------------------------------------------------------------------------
-	public function count()
+	public function count(): int
 	{
 		return count($this->arrayOfObjects);
 	}
@@ -160,5 +161,9 @@ class ArrayToDBBridge implements DataSource
 		return false;
 	}
 	// -------------------------------------------------------------------------
+	public static function setConnectionConfigration(ConnectionConfiguration $configuration)
+	{
+		throw new BragaException("BR:98101 Not implemented", 98101);
+	}
+	// -------------------------------------------------------------------------
 }
-?>

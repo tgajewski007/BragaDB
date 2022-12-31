@@ -11,6 +11,7 @@ use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
 use braga\tools\benchmark\Benchmark;
+use braga\tools\tools\JsonSerializer;
 class DB implements DataSource
 {
 	use ConnectionConfigurationSetter;
@@ -52,19 +53,19 @@ class DB implements DataSource
 	// -----------------------------------------------------------------------------------------------------------------
 	public function query($sql)
 	{
-		Benchmark::add(__METHOD__);
+		$context = [];
+		$context["sql"] = $sql;
+		$context["param"] = $this->params;
+		Benchmark::add(__METHOD__, $context);
 		$this->lastQuery = $sql;
 		try
 		{
 			if(self::connect())
 			{
-				Benchmark::add(__METHOD__ . "_CONNECT");
 				if($this->prepare())
 				{
-					Benchmark::add(__METHOD__ . "_PREPARE");
 					if($this->rewind())
 					{
-						Benchmark::add(__METHOD__ . "_REWIND");
 						if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
 						{
 							$this->setMetaData();
@@ -81,6 +82,7 @@ class DB implements DataSource
 								$this->rowAffected = $this->statement->rowCount();
 							}
 						}
+						Benchmark::add(__METHOD__ . "_END");
 					}
 					else
 					{

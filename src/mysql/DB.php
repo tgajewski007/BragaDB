@@ -10,6 +10,7 @@ use braga\db\ConnectionConfigurationSetter;
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
+use braga\tools\benchmark\Benchmark;
 class DB implements DataSource
 {
 	use ConnectionConfigurationSetter;
@@ -45,20 +46,25 @@ class DB implements DataSource
 	// -----------------------------------------------------------------------------------------------------------------
 	public function rewind()
 	{
+		Benchmark::add(__METHOD__);
 		return $this->statement->execute($this->params);
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	public function query($sql)
 	{
+		Benchmark::add(__METHOD__);
 		$this->lastQuery = $sql;
 		try
 		{
 			if(self::connect())
 			{
+				Benchmark::add(__METHOD__ . "_CONNECT");
 				if($this->prepare())
 				{
+					Benchmark::add(__METHOD__ . "_PREPARE");
 					if($this->rewind())
 					{
+						Benchmark::add(__METHOD__ . "_REWIND");
 						if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
 						{
 							$this->setMetaData();
@@ -114,6 +120,7 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	protected function getRecordFound()
 	{
+		Benchmark::add(__METHOD__);
 		$sql = "SELECT FOUND_ROWS()";
 		$rs = self::$connectionObject->query($sql);
 		$retval = (int)$rs->fetchColumn();
@@ -130,6 +137,7 @@ class DB implements DataSource
 	 */
 	protected function prepare()
 	{
+		Benchmark::add(__METHOD__);
 		$this->orginalQuery = $this->lastQuery;
 		if(!is_null($this->limit))
 		{
@@ -192,6 +200,7 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	public static function commit()
 	{
+		Benchmark::add(__METHOD__);
 		if(self::connect())
 		{
 			if(self::$inTransaction)
@@ -212,6 +221,7 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	public static function rollback()
 	{
+		Benchmark::add(__METHOD__);
 		if(self::connect())
 		{
 			if(self::$inTransaction)
@@ -277,6 +287,7 @@ class DB implements DataSource
 	 */
 	protected static function connect()
 	{
+		Benchmark::add(__METHOD__);
 		if(empty(self::$connectionObject))
 		{
 			$limit = 10;

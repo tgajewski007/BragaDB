@@ -4,6 +4,7 @@
  * create 29-05-2012 07:48:24
  * @author Tomasz Gajewski
  * @package common
+ * error prefix BR:100
  */
 namespace braga\db\mysql;
 use braga\db\ConnectionConfigurationSetter;
@@ -11,39 +12,27 @@ use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
 use braga\tools\benchmark\Benchmark;
-use braga\tools\tools\JsonSerializer;
+use braga\tools\exception\BragaException;
+use PDO;
+use PDOStatement;
+
 class DB implements DataSource
 {
 	use ConnectionConfigurationSetter;
 	// -----------------------------------------------------------------------------------------------------------------
-	/**
-	 * @var \PDO
-	 */
-	protected static $connectionObject = null;
-	/**
-	 * @var \PDOStatement
-	 */
-	protected $statement = null;
-	protected $params = null;
-	protected $row = null;
-	protected $rowAffected = -1;
-	protected $lastQuery = null;
-	protected $orginalQuery = null;
-	protected $limit = null;
-	protected $offset = null;
-	/**
-	 * @var DataSourceMetaData
-	 */
-	protected $metaData = null;
-	/**
-	 * @var boolean
-	 */
-	protected static $inTransaction = false;
+	public const INIT_COMMAND = "SET NAMES utf8 COLLATE 'utf8_polish_ci'";
 	// -----------------------------------------------------------------------------------------------------------------
-	function __construct()
-	{
-		$this->params = array();
-	}
+	protected static ?PDO $connectionObject = null;
+	protected ?PDOStatement $statement = null;
+	protected array $params = [];
+	protected ?array $row = null;
+	protected ?int $rowAffected = null;
+	protected ?string $lastQuery = null;
+	protected ?string $orginalQuery = null;
+	protected ?int $limit = null;
+	protected ?int $offset = null;
+	protected ?DataSourceMetaData $metaData = null;
+	protected static bool $inTransaction = false;
 	// -----------------------------------------------------------------------------------------------------------------
 	public function rewind()
 	{
@@ -60,36 +49,16 @@ class DB implements DataSource
 		$this->lastQuery = $sql;
 		try
 		{
-			if(self::connect())
+			self::connect();
+			$this->prepare();
+			if($this->rewind())
 			{
-				if($this->prepare())
-				{
-					if($this->rewind())
-					{
-						if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
-						{
-							$this->setMetaData();
-							$this->rowAffected = $this->getRecordFound();
-						}
-						else
-						{
-							if($this->statement->rowCount() == 0)
-							{
-								$this->rowAffected = 1;
-							}
-							else
-							{
-								$this->rowAffected = $this->statement->rowCount();
-							}
-						}
-						Benchmark::add(__METHOD__ . "_END");
-					}
-					else
-					{
-						$errors = $this->statement->errorInfo();
-						throw new GeneralSqlException($this, $errors, 100001);
-					}
-				}
+				Benchmark::add(__METHOD__ . "_END");
+			}
+			else
+			{
+				$errors = $this->statement->errorInfo();
+				throw new GeneralSqlException($this, $errors, 100001);
 			}
 		}
 		catch(\PDOException $e)
@@ -112,9 +81,9 @@ class DB implements DataSource
 		switch($e->getMessage())
 		{
 			case "SQLSTATE[HY000]: General error: 1205 Lock wait timeout exceeded; try restarting transaction":
-				return new \RuntimeException("BR:1205 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 1205);
+				return new BragaException("BR:10001 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 10001);
 			case "SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction":
-				return new \RuntimeException("BR:1213 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 1213);
+				return new \RuntimeException("BR:10002 Dane są zablokowane do edycji, spróbuj ponownie za chwilę", 10002);
 			default :
 				return $e;
 		}
@@ -135,7 +104,8 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 * @return boolean
+	 * @return void
+	 * @throws GeneralSqlException
 	 */
 	protected function prepare()
 	{
@@ -145,15 +115,10 @@ class DB implements DataSource
 		{
 			$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
 		}
-		$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-			\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-		if($this->statement instanceof \PDOStatement)
+		$this->statement = self::$connectionObject->prepare($this->lastQuery, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+		if($this->statement === false)
 		{
-			return true;
-		}
-		else
-		{
-			return true;
+			throw new GeneralSqlException($this, "BR:10003 Błąd przygotowania zapytania SQL", 10003);
 		}
 	}
 	// ------------------------------------------------------------------------
@@ -168,15 +133,8 @@ class DB implements DataSource
 	 */
 	public function nextRecord()
 	{
-		$this->row = $this->statement->fetch(\PDO::FETCH_BOTH);
-		if($this->row !== false)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		$this->row = $this->statement->fetch();
+		return $this->row !== false;
 	}
 	// -------------------------------------------------------------------------
 	public function f($fieldIndex)
@@ -195,7 +153,7 @@ class DB implements DataSource
 	{
 		if($clear)
 		{
-			$this->params = array();
+			$this->params = [];
 		}
 		$this->params[":" . $name] = $value;
 	}
@@ -203,63 +161,72 @@ class DB implements DataSource
 	public static function commit()
 	{
 		Benchmark::add(__METHOD__);
-		if(self::connect())
+		self::connect();
+		if(self::$inTransaction)
 		{
-			if(self::$inTransaction)
+			self::$inTransaction = false;
+			if(!self::$connectionObject->commit())
 			{
-				self::$inTransaction = false;
-				return self::$connectionObject->commit();
-			}
-			else
-			{
-				return true;
+				throw new BragaException("BR:10004 Błąd wycofania transakcji", 10004);
 			}
 		}
 		else
 		{
-			throw new \Exception("Connecion error", 100002);
+			throw new BragaException("BR:10005 Zatwierdzenie transakcji na nierozpoczętej transakcji", 10005);
 		}
 	}
 	// -------------------------------------------------------------------------
 	public static function rollback()
 	{
 		Benchmark::add(__METHOD__);
-		if(self::connect())
+		self::connect();
+		if(self::$inTransaction)
 		{
-			if(self::$inTransaction)
+			self::$inTransaction = false;
+			if(!self::$connectionObject->rollback())
 			{
-				self::$inTransaction = false;
-				return self::$connectionObject->rollback();
-			}
-			else
-			{
-				return true;
+				throw new BragaException("BR:10006 Błąd wycofania transakcji", 10006);
 			}
 		}
 		else
 		{
-			throw new \Exception("Connecion error", 100003);
+			throw new BragaException("BR:10007 Wycofanie transakcji na nierozpoczętej transakcji", 10007);
 		}
 	}
 	// -------------------------------------------------------------------------
 	public static function startTransaction()
 	{
-		if(self::connect())
+		self::connect();
+		if(!self::$inTransaction)
 		{
-			if(!self::$inTransaction)
+			if(!self::$connectionObject->beginTransaction())
 			{
-				self::$connectionObject->beginTransaction();
-				self::$inTransaction = true;
+				throw new BragaException("BR:10008 Rozpoczęcie transakcji nie powiodło się", 10008);
 			}
-		}
-		else
-		{
-			throw new \Exception("Connection error", 100004);
+			self::$inTransaction = true;
 		}
 	}
 	// -------------------------------------------------------------------------
 	public function getRowAffected()
 	{
+		if(is_null($this->rowAffected))
+		{
+			if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
+			{
+				$this->rowAffected = $this->getRecordFound();
+			}
+			else
+			{
+				if($this->statement->rowCount() == 0)
+				{
+					$this->rowAffected = 1;
+				}
+				else
+				{
+					$this->rowAffected = $this->statement->rowCount();
+				}
+			}
+		}
 		return $this->rowAffected;
 	}
 	// -------------------------------------------------------------------------
@@ -268,6 +235,10 @@ class DB implements DataSource
 	 */
 	public function getMetaData()
 	{
+		if(is_null($this->metaData))
+		{
+			$this->setMetaData();
+		}
 		return $this->metaData;
 	}
 	// -------------------------------------------------------------------------
@@ -285,25 +256,25 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 	/**
-	 * @return boolean
+	 * @return void
+	 * @throws \Exception
 	 */
 	protected static function connect()
 	{
 		Benchmark::add(__METHOD__);
 		if(empty(self::$connectionObject))
 		{
-			$limit = 10;
+			$limit = 3;
 			$counter = 0;
 			while(true)
 			{
 				try
 				{
-					self::$connectionObject = new \PDO(self::getConnectionConfigration()->getConnectionString(), self::getConnectionConfigration()->getUserName(), self::getConnectionConfigration()->getPassword());
-					self::$connectionObject->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-					// self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_FOUND_ROWS, true);
-					self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
-					self::$connectionObject->setAttribute(\PDO::ATTR_PERSISTENT, true);
-					self::$connectionObject->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, "SET NAMES utf8 COLLATE 'utf8_polish_ci'");
+					self::$connectionObject = new PDO(self::getConnectionConfigration()->getConnectionString(), self::getConnectionConfigration()->getUserName(), self::getConnectionConfigration()->getPassword());
+					self::$connectionObject->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+					self::$connectionObject->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+					self::$connectionObject->setAttribute(PDO::ATTR_PERSISTENT, true);
+					self::$connectionObject->setAttribute(PDO::MYSQL_ATTR_INIT_COMMAND, self::getConnectionConfigration()->getInitCommand() ?? self::INIT_COMMAND);
 					break;
 				}
 				catch(\Exception $e)
@@ -318,8 +289,6 @@ class DB implements DataSource
 				}
 			}
 		}
-
-		return true;
 	}
 	// ------------------------------------------------------------------------
 	public function count(): int
@@ -333,4 +302,3 @@ class DB implements DataSource
 	}
 	// -------------------------------------------------------------------------
 }
-?>

@@ -7,12 +7,14 @@ class ConnectionConfiguration
 	protected string $connectionString;
 	protected string $userName;
 	protected string $password;
+	protected ?string $initCommand = null;
 	// -----------------------------------------------------------------------------------------------------------------
-	public function __construct(string $connectionString, string $userName, string $password)
+	public function __construct(string $connectionString, string $userName, string $password, ?string $initCommand = null)
 	{
 		$this->connectionString = $connectionString;
 		$this->userName = $userName;
 		$this->password = $password;
+		$this->initCommand = $initCommand;
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	/**
@@ -61,6 +63,19 @@ class ConnectionConfiguration
 	public function setPassword(string $password): void
 	{
 		$this->password = $password;
+	}
+	// -----------------------------------------------------------------------------------------------------------------
+	/**
+	 * @param string|null $initCommand
+	 */
+	public function setInitCommand(?string $initCommand): void
+	{
+		$this->initCommand = $initCommand;
+	}
+	// -----------------------------------------------------------------------------------------------------------------
+	public function getInitCommand()
+	{
+		return $this->initCommand;
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 }

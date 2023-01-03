@@ -133,8 +133,16 @@ class DB implements DataSource
 	 */
 	public function nextRecord()
 	{
-		$this->row = $this->statement->fetch();
-		return $this->row !== false;
+		$tmp = $this->statement->fetch();
+		if($tmp === false)
+		{
+			return false;
+		}
+		else
+		{
+			$this->row = $tmp;
+			return true;
+		}
 	}
 	// -------------------------------------------------------------------------
 	public function f($fieldIndex)

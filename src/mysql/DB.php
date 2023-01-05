@@ -178,10 +178,6 @@ class DB implements DataSource
 				throw new BragaException("BR:10004 Błąd wycofania transakcji", 10004);
 			}
 		}
-		else
-		{
-			throw new BragaException("BR:10005 Zatwierdzenie transakcji na nierozpoczętej transakcji", 10005);
-		}
 	}
 	// -------------------------------------------------------------------------
 	public static function rollback()
@@ -195,10 +191,6 @@ class DB implements DataSource
 			{
 				throw new BragaException("BR:10006 Błąd wycofania transakcji", 10006);
 			}
-		}
-		else
-		{
-			throw new BragaException("BR:10007 Wycofanie transakcji na nierozpoczętej transakcji", 10007);
 		}
 	}
 	// -------------------------------------------------------------------------

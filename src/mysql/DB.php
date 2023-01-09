@@ -53,6 +53,7 @@ class DB implements DataSource
 			$this->prepare();
 			if($this->rewind())
 			{
+				$this->setRowAffected();
 				Benchmark::add(__METHOD__ . "_END");
 			}
 			else
@@ -75,7 +76,7 @@ class DB implements DataSource
 			throw $this->translateException($e);
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	protected function translateException(\Throwable $e)
 	{
 		switch($e->getMessage())
@@ -88,7 +89,7 @@ class DB implements DataSource
 				return $e;
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	protected function getRecordFound()
 	{
 		Benchmark::add(__METHOD__);
@@ -97,12 +98,12 @@ class DB implements DataSource
 		$retval = (int)$rs->fetchColumn();
 		return $retval;
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	protected function setMetaData()
 	{
 		$this->metaData = new MySQLMetaData($this->statement);
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return void
 	 * @throws GeneralSqlException
@@ -121,13 +122,13 @@ class DB implements DataSource
 			throw new GeneralSqlException($this, "BR:10003 Błąd przygotowania zapytania SQL", 10003);
 		}
 	}
-	// ------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public function setLimit($offset, $limit = null)
 	{
 		$this->offset = intval($offset);
 		$this->limit = is_null($limit) ? $limit : intval($limit);
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return boolean
 	 */
@@ -144,7 +145,11 @@ class DB implements DataSource
 			return true;
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
+	/**
+	 * @param $fieldIndex
+	 * @return mixed|null
+	 */
 	public function f($fieldIndex)
 	{
 		if(isset($this->row[$fieldIndex]))
@@ -156,7 +161,13 @@ class DB implements DataSource
 			return null;
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
+	/**
+	 * @param $name
+	 * @param $value
+	 * @param $clear
+	 * @return void
+	 */
 	public function setParam($name, $value, $clear = false)
 	{
 		if($clear)
@@ -165,7 +176,11 @@ class DB implements DataSource
 		}
 		$this->params[":" . $name] = $value;
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
+	/**
+	 * @return void
+	 * @throws BragaException
+	 */
 	public static function commit()
 	{
 		Benchmark::add(__METHOD__);
@@ -179,7 +194,11 @@ class DB implements DataSource
 			}
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
+	/**
+	 * @return void
+	 * @throws BragaException
+	 */
 	public static function rollback()
 	{
 		Benchmark::add(__METHOD__);
@@ -193,7 +212,7 @@ class DB implements DataSource
 			}
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public static function startTransaction()
 	{
 		self::connect();
@@ -206,30 +225,31 @@ class DB implements DataSource
 			self::$inTransaction = true;
 		}
 	}
-	// -------------------------------------------------------------------------
-	public function getRowAffected()
+	// -----------------------------------------------------------------------------------------------------------------
+	private function setRowAffected()
 	{
-		if(is_null($this->rowAffected))
+		if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
 		{
-			if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
+			$this->rowAffected = $this->getRecordFound();
+		}
+		else
+		{
+			if($this->statement->rowCount() == 0)
 			{
-				$this->rowAffected = $this->getRecordFound();
+				$this->rowAffected = 1;
 			}
 			else
 			{
-				if($this->statement->rowCount() == 0)
-				{
-					$this->rowAffected = 1;
-				}
-				else
-				{
-					$this->rowAffected = $this->statement->rowCount();
-				}
+				$this->rowAffected = $this->statement->rowCount();
 			}
 		}
+	}
+	// -----------------------------------------------------------------------------------------------------------------
+	public function getRowAffected()
+	{
 		return $this->rowAffected;
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return DataSourceMetaData
 	 */
@@ -241,7 +261,7 @@ class DB implements DataSource
 		}
 		return $this->metaData;
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return int
 	 */
@@ -249,12 +269,12 @@ class DB implements DataSource
 	{
 		return self::$connectionObject->lastInsertId();
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public function setFetchMode($fetchMode)
 	{
 		$this->fetchMode = $fetchMode;
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return void
 	 * @throws \Exception
@@ -290,15 +310,15 @@ class DB implements DataSource
 			}
 		}
 	}
-	// ------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public function count(): int
 	{
 		return $this->getRowAffected();
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	static function getParameName($length = 8)
 	{
 		return "P" . strtoupper(getRandomStringLetterOnly($length));
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 }

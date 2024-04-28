@@ -116,7 +116,7 @@ class DB implements DataSource
 		{
 			$this->lastQuery .= " LIMIT " . $this->offset . ", " . $this->limit;
 		}
-		$this->statement = self::$connectionObject->prepare($this->lastQuery, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+		$this->statement = self::$connectionObject->prepare($this->lastQuery, array( PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY ));
 		if($this->statement === false)
 		{
 			throw new GeneralSqlException($this, "BR:10003 Błąd przygotowania zapytania SQL", 10003);
@@ -319,6 +319,11 @@ class DB implements DataSource
 	static function getParameName($length = 8)
 	{
 		return "P" . strtoupper(getRandomStringLetterOnly($length));
+	}
+	// -----------------------------------------------------------------------------------------------------------------
+	public function getRow()
+	{
+		return $this->row;
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 }

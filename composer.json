@@ -22,8 +22,8 @@
     }
   ],
   "require": {
-    "braga/tools": "~4.0",
-    "php": ">=8.1",
+    "braga/tools": "~4.3",
+    "php": ">=8.2",
     "ext-pdo": "*"
   },
   "minimum-stability": "stable",

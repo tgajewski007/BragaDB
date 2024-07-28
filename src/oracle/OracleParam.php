@@ -14,7 +14,7 @@ class OracleParam
 	protected $size;
 	protected $typ;
 	// -------------------------------------------------------------------------
-	function __construct($connectionObject, $value, $size, $typ)
+	public function __construct($connectionObject, $value, $size, $typ)
 	{
 		$this->typ = $typ;
 		$this->size = $size;

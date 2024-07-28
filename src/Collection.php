@@ -27,7 +27,7 @@ class Collection implements \Iterator, \Countable
 	protected $currentObj = null;
 	protected $inited = false;
 	// -------------------------------------------------------------------------
-	function __construct(DataSource $db, DAO $prototype)
+	public function __construct(DataSource $db, DAO $prototype)
 	{
 		$this->database = $db;
 		$this->prototype = $prototype;

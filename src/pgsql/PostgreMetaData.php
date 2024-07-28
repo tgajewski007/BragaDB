@@ -18,7 +18,7 @@ class PostgreMetaData implements DataSourceMetaData
 	// -------------------------------------------------------------------------
 	protected $iteratorIndikator = true;
 	// -------------------------------------------------------------------------
-	function __construct(\PDOStatement $stm)
+	public function __construct(\PDOStatement $stm)
 	{
 		$this->columnCount = $stm->columnCount();
 		for($i = 0; $i < $stm->columnCount(); $i++)

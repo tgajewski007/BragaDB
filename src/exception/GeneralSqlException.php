@@ -11,11 +11,10 @@ class GeneralSqlException extends \Exception
 	 */
 	protected $db;
 	// -----------------------------------------------------------------------------------------------------------------
-	function __construct(DataSource $db, $message = null, $code = null)
+	public function __construct(DataSource $db, $message = null, $code = null)
 	{
+		parent::__construct($message, $code);
 		$this->db = $db;
-		$this->message = $message;
-		$this->code = $code;
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 }

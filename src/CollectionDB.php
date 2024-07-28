@@ -21,7 +21,7 @@ class CollectionDB implements DataSource
 	 */
 	protected $metaData;
 	// -------------------------------------------------------------------------
-	function __construct(Collection $obj)
+	public function __construct(Collection $obj)
 	{
 		$this->arrayOfObjects = $obj;
 		$this->metaData = new ArrayDBMetaData();
@@ -73,7 +73,7 @@ class CollectionDB implements DataSource
 					$obj = $this->arrayOfObjects->current();
 					$retval = call_user_func_array(array(
 						$obj,
-						$this->translate[$index][0]), $this->translate[$index][1]);
+						$this->translate[$index][0] ), $this->translate[$index][1]);
 				}
 				else
 				{
@@ -83,7 +83,7 @@ class CollectionDB implements DataSource
 					{
 						$obj = call_user_func(array(
 							$obj,
-							$functionName));
+							$functionName ));
 					}
 					$retval = $obj;
 				}

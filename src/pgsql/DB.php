@@ -37,8 +37,12 @@ class DB implements DataSource
 	 * @var boolean
 	 */
 	protected static $inTransaction = false;
+	/**
+	 * @var bool
+	 */
+	protected mixed $transaction;
 	// -------------------------------------------------------------------------
-	function __construct($transaction = true)
+	public function __construct(bool $transaction = true)
 	{
 		$this->transaction = $transaction;
 		$this->params = array();
@@ -118,7 +122,7 @@ class DB implements DataSource
 			$this->lastQuery .= " LIMIT " . $this->limit . " OFFSET " . $this->offset;
 		}
 		$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-			\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+			\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
 		if($this->statement instanceof \PDOStatement)
 		{
 			return true;

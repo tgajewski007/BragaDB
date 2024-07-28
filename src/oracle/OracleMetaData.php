@@ -17,7 +17,7 @@ class OracleMetaData implements DataSourceMetaData
 	// -------------------------------------------------------------------------
 	protected $iteratorIndikator = true;
 	// -------------------------------------------------------------------------
-	function __construct($statment)
+	public function __construct($statment)
 	{
 		$this->columnCount = oci_num_fields($statment);
 		for($i = 0; $i < $this->columnCount; $i++)

@@ -19,7 +19,7 @@ class ArrayToDBBridge implements DataSource
 	 */
 	protected ArrayDBMetaData $metaData;
 	// -------------------------------------------------------------------------
-	function __construct(array $obj)
+	public function __construct(array $obj)
 	{
 		$this->arrayOfObjects = $obj;
 		$this->metaData = new ArrayDBMetaData();
@@ -65,7 +65,7 @@ class ArrayToDBBridge implements DataSource
 					$obj = current($this->arrayOfObjects);
 					$retval = call_user_func_array(array(
 						$obj,
-						$this->translate[$index][0]), $this->translate[$index][1]);
+						$this->translate[$index][0] ), $this->translate[$index][1]);
 				}
 				else
 				{
@@ -75,7 +75,7 @@ class ArrayToDBBridge implements DataSource
 					{
 						$obj = call_user_func(array(
 							$obj,
-							$functionName));
+							$functionName ));
 					}
 					$retval = $obj;
 				}

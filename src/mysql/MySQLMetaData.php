@@ -6,8 +6,8 @@
  * error prefix
  */
 namespace braga\db\mysql;
-use braga\db\DataSourceMetaData;
 use braga\db\DataSourceColumnMetaData;
+use braga\db\DataSourceMetaData;
 class MySQLMetaData implements DataSourceMetaData
 {
 	// -----------------------------------------------------------------------------------------------------------------

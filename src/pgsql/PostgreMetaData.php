@@ -1,7 +1,7 @@
 <?php
 namespace braga\db\pgsql;
-use braga\db\DataSourceMetaData;
 use braga\db\DataSourceColumnMetaData;
+use braga\db\DataSourceMetaData;
 
 /**
  * Created on 16 lip 2013 08:20:15

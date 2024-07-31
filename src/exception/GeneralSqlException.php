@@ -13,7 +13,7 @@ class GeneralSqlException extends \Exception
 	// -----------------------------------------------------------------------------------------------------------------
 	public function __construct(DataSource $db, $message = null, $code = null)
 	{
-		parent::__construct($message, $code ?? 0);
+		parent::__construct($message ?? "", $code ?? 0);
 		$this->db = $db;
 	}
 	// -----------------------------------------------------------------------------------------------------------------

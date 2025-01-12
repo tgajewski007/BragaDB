@@ -25,7 +25,7 @@ interface DataSource extends \Countable
 	 */
 	public function nextRecord();
 	// -------------------------------------------------------------------------
-	public function setParam($name, $val);
+	public function setParam($name, $value);
 	// -------------------------------------------------------------------------
 	public function getRowAffected();
 	// -------------------------------------------------------------------------

@@ -147,14 +147,14 @@ class DB implements DataSource
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	/**
-	 * @param $fieldIndex
+	 * @param $index
 	 * @return mixed|null
 	 */
-	public function f($fieldIndex)
+	public function f($index)
 	{
-		if(isset($this->row[$fieldIndex]))
+		if(isset($this->row[$index]))
 		{
-			return $this->row[$fieldIndex];
+			return $this->row[$index];
 		}
 		else
 		{
@@ -228,7 +228,7 @@ class DB implements DataSource
 	// -----------------------------------------------------------------------------------------------------------------
 	private function setRowAffected()
 	{
-		if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
+		if(strtoupper(substr(trim($this->lastQuery), 0, 1)) == "S")
 		{
 			$this->rowAffected = $this->getRecordFound();
 		}
@@ -268,11 +268,6 @@ class DB implements DataSource
 	public function getLastInsertID()
 	{
 		return self::$connectionObject->lastInsertId();
-	}
-	// -----------------------------------------------------------------------------------------------------------------
-	public function setFetchMode($fetchMode)
-	{
-		$this->fetchMode = $fetchMode;
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	/**
@@ -316,7 +311,7 @@ class DB implements DataSource
 		return $this->getRowAffected();
 	}
 	// -----------------------------------------------------------------------------------------------------------------
-	static function getParameName($length = 8)
+	public static function getParameName($length = 8)
 	{
 		return "P" . strtoupper(getRandomStringLetterOnly($length));
 	}

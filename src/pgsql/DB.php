@@ -155,11 +155,11 @@ class DB implements DataSource
 		}
 	}
 	// -------------------------------------------------------------------------
-	public function f($fieldIndex)
+	public function f($index)
 	{
-		if(isset($this->row[$fieldIndex]))
+		if(isset($this->row[$index]))
 		{
-			return $this->row[$fieldIndex];
+			return $this->row[$index];
 		}
 		else
 		{

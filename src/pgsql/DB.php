@@ -232,11 +232,6 @@ class DB implements DataSource
 		return self::$connectionObject->lastInsertId();
 	}
 	// -------------------------------------------------------------------------
-	public function setFetchMode($fetchMode)
-	{
-		$this->fetchMode = $fetchMode;
-	}
-	// -------------------------------------------------------------------------
 	/**
 	 * @return boolean
 	 */

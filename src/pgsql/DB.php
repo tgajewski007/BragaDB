@@ -4,6 +4,11 @@ use braga\db\ConnectionConfigurationSetter;
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
+use braga\tools\benchmark\Benchmark;
+use braga\tools\exception\BragaException;
+use PDO;
+use PDOException;
+use Throwable;
 
 /**
  * create 29-05-2012 07:48:24
@@ -13,148 +18,164 @@ use braga\db\exception\GeneralSqlException;
 class DB implements DataSource
 {
 	use ConnectionConfigurationSetter;
-	// -------------------------------------------------------------------------
-	/**
-	 * @var \PDO
-	 */
-	protected static $connectionObject = null;
-	/**
-	 * @var \PDOStatement
-	 */
-	protected $statement = null;
-	protected $params = null;
-	protected $row = null;
-	protected $rowAffected = -1;
-	protected $lastQuery = null;
-	protected $orginalQuery = null;
-	protected $limit = null;
-	protected $offset = null;
-	/**
-	 * @var DataSourceMetaData
-	 */
-	protected $metaData = null;
-	/**
-	 * @var boolean
-	 */
-	protected static $inTransaction = false;
-	/**
-	 * @var bool
-	 */
-	protected mixed $transaction;
-	// -------------------------------------------------------------------------
-	public function __construct(bool $transaction = true)
-	{
-		$this->transaction = $transaction;
-		$this->params = array();
-	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
+	protected static ?PDO $connectionObject = null;
+	protected ?\PDOStatement $statement = null;
+	protected array $params = [];
+	protected ?array $row = null;
+	protected ?int $rowAffected = null;
+	protected ?string $lastQuery = null;
+	protected ?string $orginalQuery = null;
+	protected ?int $limit = null;
+	protected ?int $offset = null;
+	protected ?DataSourceMetaData $metaData = null;
+	protected static bool $inTransaction = false;
+	// -----------------------------------------------------------------------------------------------------------------
 	public function rewind()
 	{
+		Benchmark::add(__METHOD__);
 		return $this->statement->execute($this->params);
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return boolean
 	 */
 	public function query($sql)
 	{
+		$context = [];
+		$context["sql"] = $sql;
+		$context["param"] = $this->params;
+		Benchmark::add(__METHOD__, $context);
 		$this->lastQuery = $sql;
 
-		if($this->connect())
+		try
 		{
-			if($this->prepare())
+			self::connect();
+			$this->prepare();
+
+			if($this->rewind())
 			{
-				if($this->rewind())
-				{
-					if(strtoupper(substr($this->lastQuery, 0, 1)) == "S")
-					{
-						$this->setMetaData();
-						$this->rowAffected = $this->statement->rowCount();
-					}
-					else
-					{
-						if($this->statement->rowCount() == 0)
-						{
-							$this->rowAffected = 1;
-						}
-						else
-						{
-							$this->rowAffected = $this->statement->rowCount();
-						}
-					}
-					return true;
-				}
-				else
-				{
-					$errors = $this->statement->errorInfo();
-					throw new GeneralSqlException($this, $errors, 100002);
-				}
+				$this->setRowAffected();
 			}
 			else
 			{
-				return false;
+				$errors = $this->statement->errorInfo();
+				throw new GeneralSqlException($this, $errors, 100001);
 			}
 		}
-		else
+		catch(PDOException $e)
 		{
-			return false;
+			throw $this->translateException($e);
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
+	protected function translateException(PDOException $e): Throwable
+	{
+		switch($e->getCode())
+		{
+			// deadlock_detected
+			case '40P01':
+				return new \RuntimeException(
+					"BR:20001 Wykryto deadlock PostgreSQL, spróbuj ponownie",
+					20001,
+					$e
+				);
+
+			// serialization_failure
+			case '40001':
+				return new \RuntimeException(
+					"BR:20002 Konflikt transakcji PostgreSQL, spróbuj ponownie",
+					20002,
+					$e
+				);
+
+			// lock_not_available
+			case '55P03':
+				return new \RuntimeException(
+					"BR:20003 Dane są aktualnie zablokowane",
+					20003,
+					$e
+				);
+
+			// unique_violation
+			case '23505':
+				return new \RuntimeException(
+					"BR:20004 Naruszenie unikalności danych",
+					20004,
+					$e
+				);
+
+			// foreign_key_violation
+			case '23503':
+				return new \RuntimeException(
+					"BR:20005 Naruszenie integralności relacji",
+					20005,
+					$e
+				);
+
+			default:
+				return $e;
+		}
+	}
+	// -----------------------------------------------------------------------------------------------------------------
+	private function setRowAffected(): void
+	{
+		$this->rowAffected = $this->statement->rowCount();
+	}
+	// -----------------------------------------------------------------------------------------------------------------
 	protected function getRecordFound()
 	{
 		return $this->rowAffected;
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	protected function setMetaData()
 	{
 		$this->metaData = new PostgreMetaData($this->statement);
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return boolean
 	 */
 	protected function prepare()
 	{
+		Benchmark::add(__METHOD__);
 		$this->orginalQuery = $this->lastQuery;
 		if(!is_null($this->limit))
 		{
-			$this->lastQuery .= " LIMIT " . $this->limit . " OFFSET " . $this->offset;
+			$this->lastQuery .= " LIMIT {$this->limit} OFFSET {$this->offset}";
 		}
-		$this->statement = self::$connectionObject->prepare($this->lastQuery, array(
-			\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY ));
-		if($this->statement instanceof \PDOStatement)
+
+		$this->statement = self::$connectionObject->prepare($this->lastQuery, [ PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY ]);
+
+		if($this->statement === false)
 		{
-			return true;
-		}
-		else
-		{
-			return false;
+			throw new GeneralSqlException($this, "BR:10103 Błąd przygotowania zapytania SQL", 10103);
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public function setLimit($offset, $limit = null)
 	{
 		$this->offset = intval($offset);
 		$this->limit = is_null($limit) ? $limit : intval($limit);
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return boolean
 	 */
 	public function nextRecord()
 	{
-		$this->row = $this->statement->fetch(\PDO::FETCH_BOTH);
-		if($this->row !== false)
-		{
-			return true;
-		}
-		else
+		$tmp = $this->statement->fetch();
+		if($tmp === false)
 		{
 			return false;
 		}
+		else
+		{
+			$this->row = $tmp;
+			return true;
+		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public function f($index)
 	{
 		if(isset($this->row[$index]))
@@ -166,7 +187,7 @@ class DB implements DataSource
 			return null;
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public function setParam($name, $value, $clear = false)
 	{
 		if($clear)
@@ -175,9 +196,10 @@ class DB implements DataSource
 		}
 		$this->params[":" . $name] = $value;
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public static function commit()
 	{
+		Benchmark::add(__METHOD__);
 		if(self::$inTransaction)
 		{
 			self::$inTransaction = false;
@@ -188,9 +210,10 @@ class DB implements DataSource
 			return true;
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public static function rollback()
 	{
+		Benchmark::add(__METHOD__);
 		if(self::$inTransaction)
 		{
 			self::$inTransaction = false;
@@ -201,29 +224,38 @@ class DB implements DataSource
 			return true;
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public static function startTransaction()
 	{
+		self::connect();
 		if(!self::$inTransaction)
 		{
-			self::$connectionObject->beginTransaction();
+			if(!self::$connectionObject->beginTransaction())
+			{
+				throw new BragaException("BR:10108 Rozpoczęcie transakcji nie powiodło się", 10108);
+			}
 			self::$inTransaction = true;
 		}
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	public function getRowAffected()
 	{
 		return $this->rowAffected;
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return DataSourceMetaData
 	 */
 	public function getMetaData()
 	{
+		if(is_null($this->metaData))
+		{
+			$this->setMetaData();
+		}
+
 		return $this->metaData;
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return int
 	 */
@@ -231,29 +263,50 @@ class DB implements DataSource
 	{
 		return self::$connectionObject->lastInsertId();
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	/**
 	 * @return boolean
 	 */
-	protected function connect()
+	protected static function connect()
 	{
 		if(empty(self::$connectionObject))
 		{
-			self::$connectionObject = new \PDO(self::getConnectionConfigration()->getConnectionString(), self::getConnectionConfigration()->getUserName(), self::getConnectionConfigration()->getPassword());
-			self::$connectionObject->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-			self::$connectionObject->query("SET NAMES 'UTF8'");
+			self::$connectionObject = new PDO(
+				self::getConnectionConfigration()->getConnectionString(),
+				self::getConnectionConfigration()->getUserName(),
+				self::getConnectionConfigration()->getPassword()
+			);
+
+			self::$connectionObject->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			self::$connectionObject->setAttribute(PDO::ATTR_PERSISTENT, true);
+
+			if(self::getConnectionConfigration()->getInitCommand())
+			{
+				self::$connectionObject->exec(
+					self::getConnectionConfigration()->getInitCommand()
+				);
+			}
 		}
-		return true;
 	}
 	// ------------------------------------------------------------------------
-	public function count()
+	public function count(): int
 	{
 		return $this->getRowAffected();
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 	static function getParameName($length = 8)
 	{
 		return "P" . strtoupper(getRandomStringLetterOnly($length));
 	}
-	// -------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
+	public function getRow()
+	{
+		return $this->row;
+	}
+	// -----------------------------------------------------------------------------------------------------------------
+	public static function isTransactionStarted(): bool
+	{
+		return self::$inTransaction;
+	}
+	// -----------------------------------------------------------------------------------------------------------------
 }

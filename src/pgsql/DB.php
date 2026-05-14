@@ -37,9 +37,6 @@ class DB implements DataSource
 		return $this->statement->execute($this->params);
 	}
 	// -----------------------------------------------------------------------------------------------------------------
-	/**
-	 * @return boolean
-	 */
 	public function query($sql)
 	{
 		$context = [];
@@ -133,9 +130,6 @@ class DB implements DataSource
 		$this->metaData = new PostgreMetaData($this->statement);
 	}
 	// -----------------------------------------------------------------------------------------------------------------
-	/**
-	 * @return boolean
-	 */
 	protected function prepare()
 	{
 		Benchmark::add(__METHOD__);
@@ -264,9 +258,6 @@ class DB implements DataSource
 		return self::$connectionObject->lastInsertId();
 	}
 	// -----------------------------------------------------------------------------------------------------------------
-	/**
-	 * @return boolean
-	 */
 	protected static function connect()
 	{
 		if(empty(self::$connectionObject))

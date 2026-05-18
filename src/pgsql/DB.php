@@ -176,7 +176,7 @@ class DB implements DataSource
 	// -----------------------------------------------------------------------------------------------------------------
 	public function f($index)
 	{
-		if(array_key_exists($index, $this->row[]))
+		if(array_key_exists($index, $this->row))
 		{
 			if(is_resource($this->row[$index]))
 			{

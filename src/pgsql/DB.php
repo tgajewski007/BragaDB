@@ -180,15 +180,16 @@ class DB implements DataSource
 		{
 			return null;
 		}
-	}
-	// -----------------------------------------------------------------------------------------------------------------
-	public function setParam($name, $value, $clear = false)
+	}    // -----------------------------------------------------------------------------------------------------------------
+	/**
+	 * @param $name
+	 * @param $value
+	 * @param int $type
+	 * @return void
+	 */
+	public function setParam($name, $value, int $type = PDO::PARAM_STR)
 	{
-		if($clear)
-		{
-			$this->params = array();
-		}
-		$this->params[":" . $name] = $value;
+		$this->params[":" . $name] = [ "value" => $value, "type" => $type ];
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	public static function commit()

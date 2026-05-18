@@ -12,6 +12,7 @@ use braga\db\ConnectionConfigurationSetter;
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
+use PDO;
 class DB implements DataSource
 {
 	use ConnectionConfigurationSetter;
@@ -209,14 +210,16 @@ class DB implements DataSource
 			return null;
 		}
 	}
-	// -------------------------------------------------------------------------
-	public function setParam($name, $value = "", $clear = false, $length = -1, $type = SQLT_CHR)
+	// -----------------------------------------------------------------------------------------------------------------
+	/**
+	 * @param $name
+	 * @param $value
+	 * @param int $type
+	 * @return void
+	 */
+	public function setParam($name, $value, int $type = PDO::PARAM_STR)
 	{
-		if($clear)
-		{
-			$this->params->clear();
-		}
-		$this->params->add($name, new OracleParam($this->getConnectionObject(), $value, $length, $type));
+		$this->params[":" . $name] = [ "value" => $value, "type" => $type ];
 	}
 	// -------------------------------------------------------------------------
 	public static function commit()

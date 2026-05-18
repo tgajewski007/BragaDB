@@ -165,16 +165,12 @@ class DB implements DataSource
 	/**
 	 * @param $name
 	 * @param $value
-	 * @param $clear
+	 * @param int $type
 	 * @return void
 	 */
-	public function setParam($name, $value, $clear = false)
+	public function setParam($name, $value, int $type = PDO::PARAM_STR)
 	{
-		if($clear)
-		{
-			$this->params = [];
-		}
-		$this->params[":" . $name] = $value;
+		$this->params[":" . $name] = [ "value" => $value, "type" => $type ];
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	/**

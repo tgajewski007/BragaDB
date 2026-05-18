@@ -8,6 +8,7 @@
  */
 namespace braga\db;
 use braga\tools\exception\BragaException;
+use PDO;
 class ArrayToDBBridge implements DataSource
 {
 	// -------------------------------------------------------------------------
@@ -126,7 +127,7 @@ class ArrayToDBBridge implements DataSource
 		return false;
 	}
 	// -------------------------------------------------------------------------
-	public function setParam($name, $val)
+	public function setParam($name, $value, int $type = PDO::PARAM_STR)
 	{
 		return false;
 	}

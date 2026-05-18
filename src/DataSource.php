@@ -8,6 +8,7 @@
  */
 namespace braga\db;
 
+use PDO;
 interface DataSource extends \Countable
 {
 	// -------------------------------------------------------------------------
@@ -25,7 +26,7 @@ interface DataSource extends \Countable
 	 */
 	public function nextRecord();
 	// -------------------------------------------------------------------------
-	public function setParam($name, $value);
+	public function setParam($name, $value, int $type = PDO::PARAM_STR);
 	// -------------------------------------------------------------------------
 	public function getRowAffected();
 	// -------------------------------------------------------------------------

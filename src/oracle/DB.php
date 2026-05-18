@@ -12,6 +12,7 @@ use braga\db\ConnectionConfigurationSetter;
 use braga\db\DataSource;
 use braga\db\DataSourceMetaData;
 use braga\db\exception\GeneralSqlException;
+use braga\tools\benchmark\Benchmark;
 use PDO;
 class DB implements DataSource
 {
@@ -52,37 +53,12 @@ class DB implements DataSource
 	// -------------------------------------------------------------------------
 	public function rewind()
 	{
-		if($this->params->haveBlob())
+		Benchmark::add(__METHOD__);
+		foreach($this->params as $name => $param)
 		{
-			// zapytanie z BLOBAMI
-			if(oci_execute($this->statement, OCI_DEFAULT))
-			{
-				$this->params->loadBlobData();
-				if(OCI_COMMIT_ON_SUCCESS == $this->trasaction)
-				{
-					$this->commit();
-				}
-				return true;
-			}
-			else
-			{
-				$this->saveErrors("Błąd wykonania");
-				return false;
-			}
+			$this->statement->bindValue($name, $param['value'], $param['type']);
 		}
-		else
-		{
-			// zwykłe zapytanie
-			if(oci_execute($this->statement, $this->trasaction))
-			{
-				return true;
-			}
-			else
-			{
-				$this->saveErrors("Błąd wykonania");
-				return false;
-			}
-		}
+		return $this->statement->execute();
 	}
 	// -------------------------------------------------------------------------
 	/**

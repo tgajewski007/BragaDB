@@ -37,7 +37,11 @@ class DB implements DataSource
 	public function rewind()
 	{
 		Benchmark::add(__METHOD__);
-		return $this->statement->execute($this->params);
+		foreach($this->params as $name => $param)
+		{
+			$this->statement->bindValue($name, $param['value'], $param['type']);
+		}
+		return $this->statement->execute();
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	public function query($sql)

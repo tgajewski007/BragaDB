@@ -176,8 +176,12 @@ class DB implements DataSource
 	// -----------------------------------------------------------------------------------------------------------------
 	public function f($index)
 	{
-		if(isset($this->row[$index]))
+		if(array_key_exists($index, $this->row[]))
 		{
+			if(is_resource($this->row[$index]))
+			{
+				return stream_get_contents($this->row[$index]);
+			}
 			return $this->row[$index];
 		}
 		else
